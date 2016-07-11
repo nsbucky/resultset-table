@@ -9,6 +9,7 @@
 namespace ResultSetTable\Columns;
 
 
+use ResultSetTable\Formatter;
 use ResultSetTable\Renderable;
 use ResultSetTable\Traits\Configure;
 use ResultSetTable\Traits\FilterValue;
@@ -37,7 +38,9 @@ abstract class Column implements Renderable
         'sortDirection',
         'header',
         'visible',
-        'raw'
+        'raw',
+        'name',
+        'value',
     ];
 
     /**
@@ -51,9 +54,14 @@ abstract class Column implements Renderable
     protected $filter;
 
     /**
-     * @var
+     * @var string
      */
     protected $name;
+
+    /**
+     * @var
+     */
+    protected $value;
 
     /**
      * @var bool
@@ -64,6 +72,11 @@ abstract class Column implements Renderable
      * @var bool escape output
      */
     protected $raw = false;
+
+    /**
+     * @var Formatter
+     */
+    protected $formatter;
 
     /**
      * Column constructor.
@@ -95,8 +108,28 @@ abstract class Column implements Renderable
      * @return string
      */
     abstract public function getValue();
-    
+
+    /**
+     * return string
+     */
     protected function fetchRawValueFromDataSource()
+    {
+        if( isset($this->value)) {
+            return $this->fetchDataFromValue();
+        }
+        
+        if( is_array( $this->dataSource ) ) {
+            return array_get($this->dataSource, $this->name);
+        }
+        
+        if( is_object( $this->dataSource )) {
+            return object_get($this->dataSource, $this->name);
+        }
+        
+        return null;
+    }
+    
+    protected function fetchDataFromValue()
     {
         
     }

@@ -10,6 +10,7 @@ namespace ResultSetTable;
 
 use ResultSetTable\Buttons\Button;
 use ResultSetTable\Columns\Column;
+use ResultSetTable\Columns\DefaultColumn;
 use ResultSetTable\Rows\Row;
 use ResultSetTable\Traits\Configure;
 
@@ -72,6 +73,12 @@ class Table implements Renderable
             return $this;
         }
 
+        if( is_scalar( $config )) {
+            $this->columns[] = new DefaultColumn( [
+                'name'
+            ] );
+        }
+
         return $this;
     }
 
@@ -105,6 +112,29 @@ class Table implements Renderable
         }
         
         return $this;
+    }
+
+    /**
+     * @param $name
+     */
+    protected function detectFormatting( $name )
+    {
+        if( strpos( $name, ':' ) === false ) {
+            return;
+        }
+
+        $formatOptions = substr( $name, strpos( $name, ':' ) + 1 );
+
+        // detect if the value now required formatting
+        // formatting should be like this:
+        // img.jpg:image|width:45|height:34
+        foreach( [ 'image', 'url', 'size', 'email', 'money','rounded' ] as $formatter ) {
+            if( stripos( $name, ':' . $formatter ) !== false ) {
+                $formatClass     = "\\ResultTable\\Formatter\\" . ucfirst( $formatter );
+                $this->formatter = new $formatClass( $formatOptions );
+                break;;
+            }
+        }
     }
 
     public function render()
