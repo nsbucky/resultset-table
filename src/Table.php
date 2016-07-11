@@ -62,9 +62,10 @@ class Table implements Renderable
 
     /**
      * @param $config
+     * @param array $options
      * @return $this
      */
-    public function addColumn( $config )
+    public function addColumn( $config, array $options = [] )
     {
         if( $config instanceof Column ) {
             $this->columns[] = $config;
@@ -73,8 +74,13 @@ class Table implements Renderable
 
         return $this;
     }
-    
-    public function addButton( $config )
+
+    /**
+     * @param $config
+     * @param array $options
+     * @return $this
+     */
+    public function addButton( $config, array $options = [] )
     {
         if( $config instanceof Button ) {
             $this->buttons[] = $config;
@@ -84,8 +90,13 @@ class Table implements Renderable
 
         return $this;
     }
-    
-    public function addRow( $config )
+
+    /**
+     * @param $config
+     * @param array $options
+     * @return $this
+     */
+    public function addRow( $config, array $options = [] )
     {
         if( $config instanceof Row ) {
             $this->rows[] = $config;
