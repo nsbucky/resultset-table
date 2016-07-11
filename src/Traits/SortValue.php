@@ -9,7 +9,7 @@
 namespace ResultSetTable\Traits;
 
 
-trait Sortable
+trait SortValue
 {
     /**
      * What variable name to send back to server for field to sort on
