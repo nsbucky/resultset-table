@@ -50,7 +50,7 @@ trait SortValue
             $limit                                         => array_get( $this->queryString, $limit ),
         ];
 
-        $qs = http_build_query( array_merge( $this->queryString, $sortValues ) );
+        $qs = http_build_query( array_merge( $this->input, $sortValues ) );
 
         $url = $this->table->getBaseUrl() . '?' . $qs;
 
@@ -78,7 +78,7 @@ trait SortValue
     {
         return strtolower(
             array_get(
-                $this->queryString,
+                $this->input,
                 $this->table->getSortDirectionQueryStringKey(),
                 self::SORT_ASCENDING
             )
@@ -115,7 +115,7 @@ trait SortValue
      */
     public function isBeingSorted()
     {
-        $currentlyBeingSorted = array_get( $this->queryString, $this->sortQueryStringKey );
+        $currentlyBeingSorted = array_get( $this->input, $this->sortQueryStringKey );
 
         return strcasecmp( $this->getSortableName(), $currentlyBeingSorted ) == 0;
     }

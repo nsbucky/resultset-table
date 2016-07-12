@@ -13,6 +13,7 @@ use ResultSetTable\Formatter;
 use ResultSetTable\Renderable;
 use ResultSetTable\Traits\Configure;
 use ResultSetTable\Traits\FilterValue;
+use ResultSetTable\Traits\QueryString;
 use ResultSetTable\Traits\SortValue;
 
 abstract class Column implements Renderable
@@ -20,11 +21,7 @@ abstract class Column implements Renderable
     use SortValue;
     use Configure;
     use FilterValue;
-
-    /**
-     * @var array
-     */
-    protected $queryString = [];
+    use QueryString;
 
     protected $dataSource;
 
@@ -85,7 +82,6 @@ abstract class Column implements Renderable
     public function __construct( array $configurableOptions )
     {
         $this->configure($configurableOptions);
-        $this->queryString = $_GET;
     }
 
     /**

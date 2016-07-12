@@ -17,7 +17,7 @@ trait FilterValue
      */
     public function getFilter()
     {
-        $value = array_get( $this->queryString, $this->name );
+        $value = array_get( $this->input, $this->name );
 
         if( ! is_scalar( $value ) ) {
             $value = '';
@@ -25,9 +25,9 @@ trait FilterValue
 
         if( $this->filter === true ) {
             return sprintf(
-                '<div class="grid-view-filter-container">
-                <input type="text" name="%s" style="width:100%%" class="grid-view-filter input-small form-control" value="%s">
-                </div>',
+                '<div class="rst-filter-container">'.
+                '<input type="text" name="%s" style="width:100%%" class="rst-filter-input input-small form-control" value="%s">'.
+                '</div>',
                 $this->name,
                 e( $value )
             );
@@ -47,7 +47,7 @@ trait FilterValue
         }
 
         return sprintf(
-            '<select name="%s" class="form-control">%s</select>',
+            '<select name="%s" class="form-control rst-filter-select">%s</select>',
             $this->name,
             $this->buildDropDownList( (array) $this->filter, $value )
         );
@@ -109,5 +109,10 @@ trait FilterValue
         }
 
         return $optionsHtml;
+    }
+    
+    public function setFilter( $filter )
+    {
+        $this->filter = $filter;
     }
 }
