@@ -16,12 +16,14 @@ class SortValueTest extends PHPUnit_Framework_TestCase
     public function setUp()
     {
         $this->sort = new MySort();
+        $this->sort->setSortableName('test');
     }
 
     public function testIsBeingSorted()
     {
         $this->sort->setInput( [
-            'sort_dir'=>'asc'
+            'sort_dir'=>'asc',
+            'sort'=>'test'
         ] );
 
         $this->assertTrue($this->sort->isBeingSorted());
@@ -30,7 +32,8 @@ class SortValueTest extends PHPUnit_Framework_TestCase
     public function testGetCurrentSortDirection()
     {
         $this->sort->setInput( [
-            'sort_dir'=>'asc'
+            'sort_dir'=>'asc',
+            'sort'=>'test'
         ] );
 
         $this->assertEquals( 'asc', $this->sort->getCurrentSortDirection() );

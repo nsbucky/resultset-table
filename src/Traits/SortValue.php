@@ -136,6 +136,10 @@ trait SortValue
      */
     public function isBeingSorted()
     {
+        if( ! array_has( $this->input, $this->sortQueryStringKey )) {
+            return false;
+        }
+
         $currentlyBeingSorted = array_get( $this->input, $this->sortQueryStringKey );
 
         if( ! $currentlyBeingSorted ) {
@@ -263,6 +267,14 @@ trait SortValue
     public function setItemsPerPageIdentifier( $itemsPerPageIdentifier )
     {
         $this->itemsPerPageIdentifier = $itemsPerPageIdentifier;
+    }
+
+    /**
+     * @param string $sortableName
+     */
+    public function setSortableName( $sortableName )
+    {
+        $this->sortableName = $sortableName;
     }
 
 }
