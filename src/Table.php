@@ -74,8 +74,11 @@ class Table implements Renderable
         }
 
         if( is_scalar( $config )) {
+            list($name,$format) = $this->detectFormatting( $config );
+
             $this->columns[] = new DefaultColumn( [
-                'name'
+                'name' => $name,
+                'format'=>$format,
             ] );
         }
 

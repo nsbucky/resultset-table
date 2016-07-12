@@ -11,6 +11,7 @@ namespace ResultSetTable\Traits;
 
 trait SortValue
 {
+    
     /**
      * What variable name to send back to server for field to sort on
      * @var string
@@ -34,6 +35,26 @@ trait SortValue
     protected $sortDirection = 'asc';
 
     /**
+     * @var string
+     */
+    protected $sortAscending = 'asc';
+
+    /**
+     * @var string
+     */
+    protected $sortDescending = 'desc';
+
+    /**
+     * @var string
+     */
+    protected $pagingIdentifier = 'page';
+
+    /**
+     * @var string
+     */
+    protected $itemsPerPageIdentifier = 'limit';
+
+    /**
      * @param $label
      * @return string
      */
@@ -41,13 +62,13 @@ trait SortValue
     {
         $direction        = $this->getNextSortDirection();
         $currentDirection = $this->getCurrentSortDirection();
-        $limit            = $this->table->getItemsPerPageIdentifier();
+        $limit            = $this->getItemsPerPageIdentifier();
 
         $sortValues = [
-            $this->table->getSortQueryStringKey()          => $this->sortableName,
-            $this->table->getSortDirectionQueryStringKey() => $direction,
-            $this->table->getPagingIdentifier()            => $this->table->getCurrentPage(),
-            $limit                                         => array_get( $this->queryString, $limit ),
+            $this->getSortQueryStringKey()          => $this->sortableName,
+            $this->getSortDirectionQueryStringKey() => $direction,
+            $this->getPagingIdentifier()            => $this->table->getCurrentPage(),
+            $limit                                  => array_get( $this->input, $limit ),
         ];
 
         $qs = http_build_query( array_merge( $this->input, $sortValues ) );
@@ -59,11 +80,11 @@ trait SortValue
         $desc = '<i class="fa fa-chevron-down"></i>';
 
         if( $this->isBeingSorted() ) {
-            if( $currentDirection == self::SORT_ASCENDING ) {
+            if( $currentDirection == $this->getSortAscending() ) {
                 $icon = $asc;
             }
 
-            if( $currentDirection == self::SORT_DESCENDING ) {
+            if( $currentDirection == $this->getSortDescending() ) {
                 $icon = $desc;
             }
         }
@@ -79,8 +100,8 @@ trait SortValue
         return strtolower(
             array_get(
                 $this->input,
-                $this->table->getSortDirectionQueryStringKey(),
-                self::SORT_ASCENDING
+                $this->getSortDirectionQueryStringKey(),
+                $this->getSortAscending()
             )
         );
     }
@@ -94,17 +115,17 @@ trait SortValue
         $sortDirection = $this->getCurrentSortDirection();
 
         if( !$this->isBeingSorted() ) {
-            return self::SORT_ASCENDING;
+            return $this->getSortAscending();
         }
 
-        if( $sortDirection == self::SORT_ASCENDING ) {
+        if( $sortDirection == $this->getSortAscending() ) {
             // next direction
-            return self::SORT_DESCENDING;
+            return $this->getSortDescending();
         }
 
-        if( $sortDirection == self::SORT_DESCENDING ) {
+        if( $sortDirection == $this->getSortDescending() ) {
             // next direction
-            return self::SORT_ASCENDING;
+            return $this->getSortAscending();
         }
 
         return $sortDirection;
@@ -117,6 +138,10 @@ trait SortValue
     {
         $currentlyBeingSorted = array_get( $this->input, $this->sortQueryStringKey );
 
+        if( ! $currentlyBeingSorted ) {
+            return false;
+        }
+
         return strcasecmp( $this->getSortableName(), $currentlyBeingSorted ) == 0;
     }
 
@@ -127,4 +152,117 @@ trait SortValue
     {
         return $this->sortableName;
     }
+
+    /**
+     * @return string
+     */
+    public function getSortQueryStringKey()
+    {
+        return $this->sortQueryStringKey;
+    }
+
+    /**
+     * @param string $sortQueryStringKey
+     */
+    public function setSortQueryStringKey( $sortQueryStringKey )
+    {
+        $this->sortQueryStringKey = $sortQueryStringKey;
+    }
+
+    /**
+     * @return string
+     */
+    public function getSortDirectionQueryStringKey()
+    {
+        return $this->sortDirectionQueryStringKey;
+    }
+
+    /**
+     * @param string $sortDirectionQueryStringKey
+     */
+    public function setSortDirectionQueryStringKey( $sortDirectionQueryStringKey )
+    {
+        $this->sortDirectionQueryStringKey = $sortDirectionQueryStringKey;
+    }
+
+    /**
+     * @return string
+     */
+    public function getSortDirection()
+    {
+        return $this->sortDirection;
+    }
+
+    /**
+     * @param string $sortDirection
+     */
+    public function setSortDirection( $sortDirection )
+    {
+        $this->sortDirection = $sortDirection;
+    }
+
+    /**
+     * @return string
+     */
+    public function getSortAscending()
+    {
+        return $this->sortAscending;
+    }
+
+    /**
+     * @param string $sortAscending
+     */
+    public function setSortAscending( $sortAscending )
+    {
+        $this->sortAscending = $sortAscending;
+    }
+
+    /**
+     * @return string
+     */
+    public function getSortDescending()
+    {
+        return $this->sortDescending;
+    }
+
+    /**
+     * @param string $sortDescending
+     */
+    public function setSortDescending( $sortDescending )
+    {
+        $this->sortDescending = $sortDescending;
+    }
+
+    /**
+     * @return string
+     */
+    public function getPagingIdentifier()
+    {
+        return $this->pagingIdentifier;
+    }
+
+    /**
+     * @param string $pagingIdentifier
+     */
+    public function setPagingIdentifier( $pagingIdentifier )
+    {
+        $this->pagingIdentifier = $pagingIdentifier;
+    }
+
+    /**
+     * @return string
+     */
+    public function getItemsPerPageIdentifier()
+    {
+        return $this->itemsPerPageIdentifier;
+    }
+
+    /**
+     * @param string $itemsPerPageIdentifier
+     */
+    public function setItemsPerPageIdentifier( $itemsPerPageIdentifier )
+    {
+        $this->itemsPerPageIdentifier = $itemsPerPageIdentifier;
+    }
+
 }
