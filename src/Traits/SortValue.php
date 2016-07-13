@@ -9,6 +9,8 @@
 namespace ResultSetTable\Traits;
 
 
+use Assert\Assertion;
+
 trait SortValue
 {
     
@@ -173,6 +175,8 @@ trait SortValue
      */
     public function setSortQueryStringKey( $sortQueryStringKey )
     {
+        Assertion::string( $sortQueryStringKey );
+        
         $this->sortQueryStringKey = $sortQueryStringKey;
     }
 
@@ -189,6 +193,8 @@ trait SortValue
      */
     public function setSortDirectionQueryStringKey( $sortDirectionQueryStringKey )
     {
+        Assertion::string( $sortDirectionQueryStringKey );
+        
         $this->sortDirectionQueryStringKey = $sortDirectionQueryStringKey;
     }
 
@@ -205,6 +211,8 @@ trait SortValue
      */
     public function setSortDirection( $sortDirection )
     {
+        Assertion::string( $sortDirection );
+        
         $this->sortDirection = $sortDirection;
     }
 
@@ -221,6 +229,8 @@ trait SortValue
      */
     public function setSortAscending( $sortAscending )
     {
+        Assertion::string( $sortAscending );
+        
         $this->sortAscending = $sortAscending;
     }
 
@@ -237,6 +247,8 @@ trait SortValue
      */
     public function setSortDescending( $sortDescending )
     {
+        Assertion::string( $sortDescending );
+        
         $this->sortDescending = $sortDescending;
     }
 
@@ -253,6 +265,8 @@ trait SortValue
      */
     public function setPagingIdentifier( $pagingIdentifier )
     {
+        Assertion::string( $pagingIdentifier );
+        
         $this->pagingIdentifier = $pagingIdentifier;
     }
 
@@ -269,6 +283,7 @@ trait SortValue
      */
     public function setItemsPerPageIdentifier( $itemsPerPageIdentifier )
     {
+        Assertion::string( $itemsPerPageIdentifier );
         $this->itemsPerPageIdentifier = $itemsPerPageIdentifier;
     }
 
@@ -277,6 +292,7 @@ trait SortValue
      */
     public function setSortableName( $sortableName )
     {
+        Assertion::string( $sortableName );
         $this->sortableName = $sortableName;
     }
 

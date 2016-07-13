@@ -26,22 +26,22 @@ class Table implements Renderable
     /**
      * @var Column[]
      */
-    private $columns = [];
+    private $columns = [ ];
 
     /**
      * @var Button[]
      */
-    private $buttons = [];
+    private $buttons = [ ];
 
     /**
      * @var Row[]
      */
-    private $rows = [];
+    private $rows = [ ];
 
     /**
      * @var array
      */
-    protected $configurableOptions = [];
+    protected $configurableOptions = [ ];
 
     /**
      * @var string
@@ -63,7 +63,7 @@ class Table implements Renderable
      * Table constructor.
      * @param \IteratorAggregate|array $dataSource
      */
-    public function __construct( $dataSource, array $options = [] )
+    public function __construct( $dataSource, array $options = [ ] )
     {
         $this->dataSource = $dataSource;
 
@@ -75,25 +75,26 @@ class Table implements Renderable
      * @param array $options
      * @return $this
      */
-    public function addColumn( $config, array $options = [] )
+    public function addColumn( $config, array $options = [ ] )
     {
         if( $config instanceof Column ) {
             $this->columns[] = $config;
+
             return $this;
         }
 
-        if( is_scalar( $config )) {
-            list($name,$format) = $this->detectFormatting( $config );
+        if( is_scalar( $config ) ) {
+            list( $name, $format ) = $this->detectFormatting( $config );
 
             $options = array_merge( [
-                'name' => $name,
-                'formatter'=>$format,
+                'name'      => $name,
+                'formatter' => $format,
             ], $options );
 
             $this->columns[] = new DefaultColumn( $options );
         }
 
-        if( is_array($config) ) {
+        if( is_array( $config ) ) {
             $this->columns[] = new DefaultColumn( $config );
         }
 
@@ -105,16 +106,16 @@ class Table implements Renderable
      * @param array $options
      * @return $this
      */
-    public function addButton( $config, array $options = [] )
+    public function addButton( $config, array $options = [ ] )
     {
         if( $config instanceof Button ) {
             $this->buttons[] = $config;
 
             return $this;
         }
-        
+
         if( is_array( $config ) ) {
-            $this->buttons[] = new Action($config);
+            $this->buttons[] = new Action( $config );
         }
 
         return $this;
@@ -125,14 +126,14 @@ class Table implements Renderable
      * @param array $options
      * @return $this
      */
-    public function addRow( $config, array $options = [] )
+    public function addRow( $config, array $options = [ ] )
     {
         if( $config instanceof Row ) {
             $this->rows[] = $config;
-            
+
             return $this;
         }
-        
+
         return $this;
     }
 
@@ -146,12 +147,12 @@ class Table implements Renderable
             return;
         }
 
-        list($name, $format) = explode( ':', $name );
+        list( $name, $format ) = explode( ':', $name );
 
-        $formatClass     = "\\ResultSetTable\\Formats\\" . ucfirst( $format);
-        $format = new $formatClass;
+        $formatClass = "\\ResultSetTable\\Formats\\" . ucfirst( $format );
+        $format      = new $formatClass;
 
-        return [$name, $format];
+        return [ $name, $format ];
     }
 
     /**
@@ -160,24 +161,24 @@ class Table implements Renderable
      * @param $cellTag
      * @param Column[] $columns
      */
-    public function buildSection($dataSource, $wrapTag, $cellTag, array $columns)
+    public function buildSection( $dataSource, $wrapTag, $cellTag, array $columns )
     {
         Assertion::scalar( $wrapTag );
         Assertion::scalar( $cellTag );
         Assertion::inArray( $cellTag, [ 'th', 'td' ] );
-        Assertion::inArray( $wrapTag, [ 'tbody', 'thead','tfoot' ] );
+        Assertion::inArray( $wrapTag, [ 'tbody', 'thead', 'tfoot' ] );
 
-        $cols = [];
+        $cols = [ ];
 
         foreach( $columns as $column ) {
             $column->setDataSource( $dataSource );
 
             $cellCss = $cellTag == 'td' ? $this->getTdCss() : $this->getThCss();
 
-            $cols[] = sprintf('<%s class="%s">%s</%1$s>', $cellTag, $cellCss, $column->render() );
+            $cols[] = sprintf( '<%s class="%s">%s</%1$s>', $cellTag, $cellCss, $column->render() );
         }
-        
-        return sprintf('<%s><tr class="%s">%s</tr></%1$s>', $wrapTag, $this->getRowCss(), implode(PHP_EOL, $cols));
+
+        return sprintf( '<%s><tr class="%s">%s</tr></%1$s>', $wrapTag, $this->getRowCss($dataSource), implode( PHP_EOL, $cols ) );
     }
 
     /**
@@ -185,11 +186,11 @@ class Table implements Renderable
      */
     public function render()
     {
-        $sections   = [];
+        $sections   = [ ];
         $sections[] = $this->buildSection( $this->dataSource, 'thead', 'th', $this->columns );
         $sections[] = $this->buildSection( $this->dataSource, 'tbody', 'td', $this->columns );
-        
-        return sprintf('<table class="%s" id="%s">%s</table>', $this->getTableCss(), $this->getTableId(), implode( PHP_EOL, $sections ));
+
+        return sprintf( '<table class="%s" id="%s">%s</table>', $this->getTableCss(), $this->getTableId(), implode( PHP_EOL, $sections ) );
     }
 
     /**
@@ -205,6 +206,8 @@ class Table implements Renderable
      */
     public function setTableCss( $tableCss )
     {
+        Assertion::string( $tableCss );
+
         $this->tableCss = $tableCss;
     }
 
@@ -221,6 +224,8 @@ class Table implements Renderable
      */
     public function setTableId( $tableId )
     {
+        Assertion::string( $tableId );
+
         $this->tableId = $tableId;
     }
 
@@ -237,6 +242,8 @@ class Table implements Renderable
      */
     public function setTdCss( $tdCss )
     {
+        Assertion::string( $tdCss );
+
         $this->tdCss = $tdCss;
     }
 
@@ -253,6 +260,8 @@ class Table implements Renderable
      */
     public function setThCss( $thCss )
     {
+        Assertion::string( $thCss );
+
         $this->thCss = $thCss;
     }
 
@@ -261,6 +270,12 @@ class Table implements Renderable
      */
     public function getRowCss()
     {
+        if( $this->rowCss instanceof \Closure) {
+            $f = $this->rowCss;
+
+            return $f($this->dataSource);
+        }
+
         return $this->rowCss;
     }
 

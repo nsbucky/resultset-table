@@ -9,6 +9,7 @@
 namespace ResultSetTable\Columns;
 
 
+use Assert\Assertion;
 use ResultSetTable\Contracts\Formatter;
 use ResultSetTable\Contracts\Renderable;
 use ResultSetTable\Traits\Configure;
