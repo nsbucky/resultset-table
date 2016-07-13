@@ -58,22 +58,25 @@ trait SortValue
      * @param $label
      * @return string
      */
-    protected function createSortableLink( $label )
+    public function createSortableLink( $label )
     {
         $direction        = $this->getNextSortDirection();
         $currentDirection = $this->getCurrentSortDirection();
-        $limit            = $this->getItemsPerPageIdentifier();
 
         $sortValues = [
             $this->getSortQueryStringKey()          => $this->sortableName,
             $this->getSortDirectionQueryStringKey() => $direction,
-            $this->getPagingIdentifier()            => $this->table->getCurrentPage(),
-            $limit                                  => array_get( $this->input, $limit ),
         ];
 
-        $qs = http_build_query( array_merge( $this->input, $sortValues ) );
+        $qs = http_build_query( array_merge( (array) $this->input, $sortValues ) );
 
-        $url = $this->table->getBaseUrl() . '?' . $qs;
+        $base_url = array_get($_SERVER, 'REQUEST_URI');
+
+        if( function_exists( 'url' )) {
+            $base_url = url()->current();
+        }
+
+        $url = $base_url . '?' . $qs;
 
         $icon = '';
         $asc  = '<i class="fa fa-chevron-up"></i>';

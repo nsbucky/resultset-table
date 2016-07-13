@@ -9,12 +9,13 @@
 namespace ResultSetTable\Columns;
 
 
-use ResultSetTable\Formatter;
-use ResultSetTable\Renderable;
+use ResultSetTable\Contracts\Formatter;
+use ResultSetTable\Contracts\Renderable;
 use ResultSetTable\Traits\Configure;
 use ResultSetTable\Traits\FilterValue;
 use ResultSetTable\Traits\QueryString;
 use ResultSetTable\Traits\SortValue;
+use ResultSetTable\Traits\Tokenize;
 
 abstract class Column implements Renderable
 {
@@ -22,6 +23,7 @@ abstract class Column implements Renderable
     use Configure;
     use FilterValue;
     use QueryString;
+    use Tokenize;
 
     protected $dataSource;
 
@@ -38,6 +40,7 @@ abstract class Column implements Renderable
         'raw',
         'name',
         'value',
+        'formatter'
     ];
 
     /**
@@ -71,17 +74,22 @@ abstract class Column implements Renderable
     protected $raw = false;
 
     /**
-     * @var Formatter
+     * @var Formatter|\Closure
      */
     protected $formatter;
+
+    /**
+     * @var string
+     */
+    protected $header;
 
     /**
      * Column constructor.
      * @param array $configurableOptions
      */
-    public function __construct( array $configurableOptions )
+    public function __construct( array $configurableOptions = [ ] )
     {
-        $this->configure($configurableOptions);
+        $this->configure( $configurableOptions );
     }
 
     /**
@@ -110,24 +118,39 @@ abstract class Column implements Renderable
      */
     protected function fetchRawValueFromDataSource()
     {
-        if( isset($this->value)) {
+        if( isset( $this->value ) ) {
             return $this->fetchDataFromValue();
         }
-        
+
         if( is_array( $this->dataSource ) ) {
-            return array_get($this->dataSource, $this->name);
+            return array_get( $this->dataSource, $this->name );
         }
-        
-        if( is_object( $this->dataSource )) {
-            return object_get($this->dataSource, $this->name);
+
+        if( is_object( $this->dataSource ) ) {
+            return object_get( $this->dataSource, $this->name );
         }
-        
+
         return null;
     }
-    
+
+    /**
+     * @return string
+     */
     protected function fetchDataFromValue()
     {
-        
+        if( $this->value instanceof \Closure ) {
+            $f = $this->value;
+
+            return $f( $this->dataSource );
+        }
+
+        if( is_scalar( $this->value ) && strpos( $this->value, '{' ) !== false) {
+            $this->createTokens( $this->dataSource );
+
+            return $this->replace( $this->value );
+        }
+
+        return $this->value;
     }
 
     /**
@@ -135,6 +158,57 @@ abstract class Column implements Renderable
      */
     public function render()
     {
-        return $this->raw ? $this->getValue() : e( $this->getValue() );
+        // format the value
+        $value = $this->getValue();
+
+        if( isset( $this->formatter ) ) {
+            $value = $this->formatString( $value );
+        }
+
+        return $this->raw ? $value : e( $value );
     }
+
+    protected function formatString( $string )
+    {
+        if( $this->formatter instanceof \Closure ) {
+            $f = $this->formatter;
+
+            return $f( $string );
+        }
+
+        if( $this->formatter instanceof Formatter ) {
+            return $this->formatter->format( $string );
+        }
+
+        return $string;
+    }
+
+    /**
+     * @return string
+     */
+    public function getHeader()
+    {
+        $header = $this->header;
+
+        if( empty( $this->header ) ) {
+            $header = ucwords( str_replace( '_', ' ', $this->name ) );
+        }
+
+        // now we have a label. If sorting is turned on then we need to return
+        // a header with the sorting link
+        if( $this->sortable ) {
+            return $this->createSortableLink( $header );
+        }
+
+        return $header;
+    }
+
+    /**
+     * @param \Closure|Formatter $formatter
+     */
+    public function setFormatter( $formatter )
+    {
+        $this->formatter = $formatter;
+    }
+
 }

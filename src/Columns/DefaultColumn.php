@@ -13,7 +13,7 @@ class DefaultColumn extends Column
 {
     function getValue()
     {
-        // TODO: Implement getValue() method.
+        return $this->fetchRawValueFromDataSource();
     }
 
 }

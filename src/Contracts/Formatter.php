@@ -6,7 +6,7 @@
  * Time: 7:59 AM
  */
 
-namespace ResultSetTable;
+namespace ResultSetTable\Contracts;
 
 
 interface Formatter

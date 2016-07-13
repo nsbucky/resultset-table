@@ -8,9 +8,11 @@
 
 namespace ResultSetTable;
 
+use ResultSetTable\Buttons\Action;
 use ResultSetTable\Buttons\Button;
 use ResultSetTable\Columns\Column;
 use ResultSetTable\Columns\DefaultColumn;
+use ResultSetTable\Contracts\Renderable;
 use ResultSetTable\Rows\Row;
 use ResultSetTable\Traits\Configure;
 
@@ -78,8 +80,12 @@ class Table implements Renderable
 
             $this->columns[] = new DefaultColumn( [
                 'name' => $name,
-                'format'=>$format,
+                'formatter'=>$format,
             ] );
+        }
+
+        if( is_array($config) ) {
+            $this->columns[] = new DefaultColumn( $config );
         }
 
         return $this;
@@ -96,6 +102,10 @@ class Table implements Renderable
             $this->buttons[] = $config;
 
             return $this;
+        }
+        
+        if( is_array( $config ) ) {
+            $this->buttons[] = new Action($config);
         }
 
         return $this;

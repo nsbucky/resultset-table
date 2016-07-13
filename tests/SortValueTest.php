@@ -49,15 +49,59 @@ class SortValueTest extends PHPUnit_Framework_TestCase
     {
         $this->sort->setInput( [
             'sort_dir' => 'asc',
+            'sort'=>'test'
         ] );
 
         $this->assertEquals( 'desc', $this->sort->getNextSortDirection() );
 
         $this->sort->setInput( [
             'sort_dir' => 'desc',
+            'sort'=>'test'
         ] );
 
         $this->assertEquals( 'asc', $this->sort->getNextSortDirection() );
+    }
+
+    public function testCreateSortableLink()
+    {
+        /*$this->sort->setInput( [
+            'sort_dir' => 'desc',
+            'sort'=>'test'
+        ] );*/
+
+        $link = $this->sort->createSortableLink( 'sort me' );
+        
+        $expected = '<a href="?sort=test&sort_dir=asc" class="grid-view-sort-asc"> sort me</a>';
+        
+        $this->assertEquals($expected, $link);
+    }
+
+    public function testCreateSortableLinkAsc()
+    {
+        $this->sort->setInput( [
+            'sort_dir' => 'asc',
+            'sort'=>'test'
+        ] );
+
+        $link = $this->sort->createSortableLink( 'sort me' );
+
+        $expected = '<a href="?sort_dir=desc&sort=test" class="grid-view-sort-asc"><i class="fa fa-chevron-up"></i> sort me</a>';
+
+        $this->assertEquals($expected, $link);
+    }
+
+    public function testCreateSortableLinkDesc()
+    {
+        $this->sort->setInput( [
+            'sort_dir' => 'desc',
+            'sort'=>'test'
+        ] );
+
+        $link = $this->sort->createSortableLink( 'sort me' );
+
+        $expected = '<a href="?sort_dir=asc&sort=test" class="grid-view-sort-desc"><i class="fa fa-chevron-down"></i> sort me</a>';
+
+        $this->assertEquals($expected, $link);
     }
 }
 

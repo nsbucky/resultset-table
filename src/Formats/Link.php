@@ -9,13 +9,21 @@
 namespace ResultSetTable\Formats;
 
 
-use ResultSetTable\Formatter;
+use ResultSetTable\Contracts\Formatter;
 
 class Link implements Formatter
 {
+    public $label;
+
     public function format( $value )
     {
-        return sprintf( '<a href="%s">%s</a>', $value, $value );
+        $label = $value;
+
+        if( isset($this->label)){
+            $label = $this->label;
+        }
+
+        return sprintf( '<a href="%s">%s</a>', $value, $label );
     }
 
 }

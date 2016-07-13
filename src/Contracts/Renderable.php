@@ -6,7 +6,7 @@
  * Time: 9:53 AM
  */
 
-namespace ResultSetTable;
+namespace ResultSetTable\Contracts;
 
 
 interface Renderable
