@@ -8,6 +8,7 @@
 
 namespace ResultSetTable;
 
+use Assert\Assertion;
 use ResultSetTable\Buttons\Action;
 use ResultSetTable\Buttons\Button;
 use ResultSetTable\Columns\Column;
@@ -51,6 +52,12 @@ class Table implements Renderable
      * @var string
      */
     protected $tableId = 'my-result-table';
+
+    protected $tdCss;
+
+    protected $thCss;
+
+    protected $rowCss;
 
     /**
      * Table constructor.
@@ -131,6 +138,7 @@ class Table implements Renderable
 
     /**
      * @param $name
+     * @return array|void
      */
     protected function detectFormatting( $name )
     {
@@ -138,22 +146,131 @@ class Table implements Renderable
             return;
         }
 
-        $formatOptions = substr( $name, strpos( $name, ':' ) + 1 );
+        list($name, $format) = explode( ':', $name );
 
-        // detect if the value now required formatting
-        // formatting should be like this:
-        // img.jpg:image|width:45|height:34
-        foreach( [ 'image', 'url', 'size', 'email', 'money','rounded' ] as $formatter ) {
-            if( stripos( $name, ':' . $formatter ) !== false ) {
-                $formatClass     = "\\ResultTable\\Formatter\\" . ucfirst( $formatter );
-                $this->formatter = new $formatClass( $formatOptions );
-                break;;
-            }
-        }
+        $formatClass     = "\\ResultSetTable\\Formats\\" . ucfirst( $format);
+        $format = new $formatClass;
+
+        return [$name, $format];
     }
 
+    /**
+     * @param $dataSource
+     * @param $wrapTag
+     * @param $cellTag
+     * @param Column[] $columns
+     */
+    public function buildSection($dataSource, $wrapTag, $cellTag, array $columns)
+    {
+        Assertion::scalar( $wrapTag );
+        Assertion::scalar( $cellTag );
+        Assertion::inArray( $cellTag, [ 'th', 'td' ] );
+        Assertion::inArray( $wrapTag, [ 'tbody', 'thead','tfoot' ] );
+
+        $cols = [];
+
+        foreach( $columns as $column ) {
+            $column->setDataSource( $dataSource );
+
+            $cellCss = $cellTag == 'td' ? $this->getTdCss() : $this->getThCss();
+
+            $cols[] = sprintf('<%s class="%s">%s</%1$s>', $cellTag, $cellCss, $column->render() );
+        }
+        
+        return sprintf('<%s><tr class="%s">%s</tr></%1$s>', $wrapTag, $this->getRowCss(), implode(PHP_EOL, $cols));
+    }
+
+    /**
+     * @return string
+     */
     public function render()
     {
-        // TODO: Implement render() method.
+        $sections   = [];
+        $sections[] = $this->buildSection( $this->dataSource, 'thead', 'th', $this->columns );
+        $sections[] = $this->buildSection( $this->dataSource, 'tbody', 'td', $this->columns );
+        
+        return sprintf('<table class="%s" id="%s">%s</table>', $this->getTableCss(), $this->getTableId(), implode( PHP_EOL, $sections ));
     }
+
+    /**
+     * @return string
+     */
+    public function getTableCss()
+    {
+        return $this->tableCss;
+    }
+
+    /**
+     * @param string $tableCss
+     */
+    public function setTableCss( $tableCss )
+    {
+        $this->tableCss = $tableCss;
+    }
+
+    /**
+     * @return string
+     */
+    public function getTableId()
+    {
+        return $this->tableId;
+    }
+
+    /**
+     * @param string $tableId
+     */
+    public function setTableId( $tableId )
+    {
+        $this->tableId = $tableId;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getTdCss()
+    {
+        return $this->tdCss;
+    }
+
+    /**
+     * @param mixed $tdCss
+     */
+    public function setTdCss( $tdCss )
+    {
+        $this->tdCss = $tdCss;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getThCss()
+    {
+        return $this->thCss;
+    }
+
+    /**
+     * @param mixed $thCss
+     */
+    public function setThCss( $thCss )
+    {
+        $this->thCss = $thCss;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getRowCss()
+    {
+        return $this->rowCss;
+    }
+
+    /**
+     * @param mixed $rowCss
+     */
+    public function setRowCss( $rowCss )
+    {
+        $this->rowCss = $rowCss;
+    }
+
+
 }

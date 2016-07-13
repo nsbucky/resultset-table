@@ -15,7 +15,7 @@ trait Tokenize
     /**
      * @var array
      */
-    protected $tokens = [ ];
+    protected $tokens;
 
     /**
      * create an array of tokens to be used in various column functions. if the
@@ -26,6 +26,10 @@ trait Tokenize
      */
     public function createTokens( $data )
     {
+        if( isset( $this->tokens )) {
+            return $this->tokens;
+        }
+        
         if( is_object( $data ) && method_exists( $data, 'toArray' ) ) {
             
             $data = $data->toArray();
