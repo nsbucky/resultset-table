@@ -78,10 +78,12 @@ class Table implements Renderable
         if( is_scalar( $config )) {
             list($name,$format) = $this->detectFormatting( $config );
 
-            $this->columns[] = new DefaultColumn( [
+            $options = array_merge( [
                 'name' => $name,
                 'formatter'=>$format,
-            ] );
+            ], $options );
+
+            $this->columns[] = new DefaultColumn( $options );
         }
 
         if( is_array($config) ) {
