@@ -186,11 +186,25 @@ class Table implements Renderable
      */
     public function render()
     {
-        $sections   = [ ];
-        $sections[] = $this->buildSection( $this->dataSource, 'thead', 'th', $this->columns );
-        $sections[] = $this->buildSection( $this->dataSource, 'tbody', 'td', $this->columns );
+        $thead = [];
+        $tbody = [];
 
-        return sprintf( '<table class="%s" id="%s">%s</table>', $this->getTableCss(), $this->getTableId(), implode( PHP_EOL, $sections ) );
+        foreach( $this->dataSource as $dataSource ) {
+            $thead[] = $this->buildSection( $dataSource, 'thead', 'th', $this->columns );
+        }
+
+        foreach( $this->dataSource as $dataSource ) {
+            $tbody[] = $this->buildSection( $dataSource, 'tbody', 'td', $this->columns );
+        }
+
+
+        return sprintf(
+            '<table class="%s" id="%s">%s %s</table>',
+            $this->getTableCss(),
+            $this->getTableId(),
+            implode( PHP_EOL, $thead ) ,
+            implode( PHP_EOL, $tbody )
+        );
     }
 
     /**

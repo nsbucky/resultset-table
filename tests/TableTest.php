@@ -13,6 +13,9 @@ class TableTest extends PHPUnit_Framework_TestCase
         [
             'foo'=>'bar'
         ],
+        [
+            'baz'=>'nuts'
+        ],
     ];
 
     public function testBuildSection()
@@ -23,7 +26,7 @@ class TableTest extends PHPUnit_Framework_TestCase
             new \ResultSetTable\Columns\DefaultColumn(['name'=>'foo'])
         ];
 
-        $section = $table->buildSection( $this->dataSource, 'thead', 'th', $columns );
+        $section = $table->buildSection( $this->dataSource[0], 'thead', 'th', $columns );
 
         var_dump( $section );
     }
