@@ -212,4 +212,12 @@ abstract class Column implements Renderable
         $this->formatter = $formatter;
     }
 
+    /**
+     * @return \Closure|Formatter
+     */
+    public function getFormatter()
+    {
+        return $this->formatter;
+    }
+    
 }

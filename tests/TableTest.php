@@ -44,7 +44,7 @@ class TableTest extends PHPUnit_Framework_TestCase
 
         $actual = $table->render();
 
-        file_put_contents('test.html', $actual);
+        #file_put_contents('test.html', $actual);
 
         $html = new DOMDocument();
         $html->loadHTML($actual);
@@ -67,11 +67,107 @@ class TableTest extends PHPUnit_Framework_TestCase
 
     public function testRowCss()
     {
+        $table = new \ResultSetTable\Table( $this->dataSource );
 
+        $table->addColumn('foo');
+
+        $table->setRowCss('balls');
+
+        $actual = $table->render();
+
+        #file_put_contents('test.html', $actual);
+
+        $html = new DOMDocument();
+        $html->loadHTML($actual);
+        
+        $tr = $html->getElementsByTagName('tr');
+        $this->assertTrue( $tr->item(1)->hasAttributes());
+
+        $trClass = $tr->item(1);
+
+        $this->assertEquals('balls', $trClass->attributes->getNamedItem('class')->nodeValue);
+    }
+
+    public function testRowCssCallback()
+    {
+        $table = new \ResultSetTable\Table( $this->dataSource );
+
+        $table->addColumn('foo');
+
+        $table->setRowCss(function($data){
+
+            if($data['foo'] == 'nuts') {
+                return 'found';
+            }
+
+            return 'balls';
+        });
+
+        $actual = $table->render();
+
+        #file_put_contents('test.html', $actual);
+
+        $html = new DOMDocument();
+        $html->loadHTML($actual);
+
+        $tr = $html->getElementsByTagName('tr');
+
+        $this->assertTrue( $tr->item(1)->hasAttributes());
+
+        $trClass = $tr->item(1);
+
+        $this->assertEquals('balls', $trClass->attributes->getNamedItem('class')->nodeValue);
+
+        $trClass2 = $tr->item(2);
+
+        $this->assertEquals('found', $trClass2->attributes->getNamedItem('class')->nodeValue);
     }
 
     public function testDetectFormat()
     {
+        $table = new \ResultSetTable\Table( [
+            [
+                'dollar'=>123.4
+            ]
+        ] );
 
+        $table->addColumn('dollar:money');
+        
+        $actual = $table->render();
+        
+        #file_put_contents('test.html', $actual);
+        
+        $column = $table->getColumns()[0];
+        
+        $this->assertInstanceOf('ResultSetTable\Formats\Money', $column->getFormatter());
+    }
+
+    public function testGrabsChildData()
+    {
+        $table = new \ResultSetTable\Table( [
+            [
+                'fabric'=>[
+                    'color'=>'blue'
+                ]
+            ]
+        ] );
+
+        $table->addColumn('fabric.color');
+
+        $actual = $table->render();
+
+        #file_put_contents('test.html', $actual);
+
+        $html = new DOMDocument();
+        $html->loadHTML($actual);
+
+        $tds = $html->getElementsByTagName('td');
+
+        $this->assertEquals('blue', $tds->item(0)->nodeValue);
+    }
+
+    public function testButton()
+    {
+        
     }
 }
