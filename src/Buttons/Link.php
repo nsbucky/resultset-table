@@ -11,13 +11,25 @@ namespace ResultSetTable\Buttons;
 
 class Link extends Button
 {
+
+    /**
+     * Link constructor.
+     */
+    public function __construct( $url, $label = 'Go', array $configurableOptions = [ ] )
+    {
+        $configurableOptions['url']   = $url;
+        $configurableOptions['label'] = $label;
+
+        parent::__construct( $configurableOptions );
+    }
+
     public function getValue()
     {
-        return sprintf('<a href="%s" class="%s" %s>%s</a>',
-            $this->getUrl(), 
-            $this->getCss(), 
-            $this->getConfirm(), 
-            $this->getLabel());
+        return sprintf( '<a href="%s" class="%s" %s>%s</a>',
+            $this->getUrl(),
+            $this->getCss(),
+            $this->getConfirm(),
+            $this->getLabel() );
     }
 
 }

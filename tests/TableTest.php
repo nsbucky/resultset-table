@@ -166,8 +166,21 @@ class TableTest extends PHPUnit_Framework_TestCase
         $this->assertEquals('blue', $tds->item(0)->nodeValue);
     }
 
-    public function testButton()
+    public function testButtons()
     {
-        
+        $table = new \ResultSetTable\Table($this->dataSource);
+
+        $table->addColumn('foo')
+        ->addButton(new \ResultSetTable\Buttons\Link('index.html','Balls'));
+
+        $actual = $table->render();
+
+        file_put_contents('test.html', $actual);
+
+        $html = new DOMDocument($actual);
+
+        $th = $html->getElementsByTagName('th');
+
+        $this->assertEquals('Actions', $th->item(1)->nodeValue);
     }
 }
