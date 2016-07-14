@@ -14,7 +14,7 @@ class TableTest extends PHPUnit_Framework_TestCase
             'foo'=>'bar'
         ],
         [
-            'baz'=>'nuts'
+            'foo'=>'nuts'
         ],
     ];
 
@@ -22,17 +22,46 @@ class TableTest extends PHPUnit_Framework_TestCase
     {
         $table = new \ResultSetTable\Table( $this->dataSource );
 
+        $column = new \ResultSetTable\Columns\DefaultColumn(['name'=>'foo']);
+
+        $column->setDataSource($this->dataSource[0]);
+
         $columns = [
-            new \ResultSetTable\Columns\DefaultColumn(['name'=>'foo'])
+            $column->render(),
         ];
 
-        $section = $table->buildSection( $this->dataSource[0], 'thead', 'th', $columns );
-
-        var_dump( $section );
+        $section = $table->buildSection( $this->dataSource[0], 'td', $columns );
+        $expected = '<tr class=""><td class="">bar</td></tr>';
+        
+        $this->assertEquals($expected, $section);
     }
 
-    public function testRender()
+    public function testRenderSimpleTable()
     {
+        $table = new \ResultSetTable\Table( $this->dataSource );
+
+        $table->addColumn('foo');
+
+        $actual = $table->render();
+
+        file_put_contents('test.html', $actual);
+
+        $html = new DOMDocument();
+        $html->loadHTML($actual);
+
+        $this->assertEquals(1, $html->getElementsByTagName('tbody')->length);
+
+        $this->assertEquals(1, $html->getElementsByTagName('thead')->length);
+
+        $this->assertEquals(1, $html->getElementsByTagName('th')->length);
+
+        $this->assertEquals(2, $html->getElementsByTagName('td')->length);
+
+        $this->assertEquals('Foo', $html->getElementsByTagName('th')->item(0)->nodeValue);
+
+        $this->assertEquals('bar', $html->getElementsByTagName('td')->item(0)->nodeValue);
+
+        $this->assertEquals('nuts', $html->getElementsByTagName('td')->item(1)->nodeValue);
 
     }
 

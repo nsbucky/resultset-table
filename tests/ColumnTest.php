@@ -125,7 +125,12 @@ class ColumnTest extends PHPUnit_Framework_TestCase
 
         $value = $column->render();
 
-        $this->assertEquals( '$1,230.40', $value );
+        if( function_exists('money_format')) {
+            $this->assertEquals( '$1,230.40', $value );
+        } else {
+            $this->assertEquals( '$1230.40', $value );
+        }
+
     }
 }
 

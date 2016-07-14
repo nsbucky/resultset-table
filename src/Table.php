@@ -144,7 +144,7 @@ class Table implements Renderable
     protected function detectFormatting( $name )
     {
         if( strpos( $name, ':' ) === false ) {
-            return;
+            return [$name, null];
         }
 
         list( $name, $format ) = explode( ':', $name );
@@ -156,29 +156,25 @@ class Table implements Renderable
     }
 
     /**
-     * @param $dataSource
-     * @param $wrapTag
+     * @param $dataSource     
      * @param $cellTag
-     * @param Column[] $columns
+     * @param array $columns
      */
-    public function buildSection( $dataSource, $wrapTag, $cellTag, array $columns )
+    public function buildSection( $dataSource, $cellTag, array $columns )
     {
-        Assertion::scalar( $wrapTag );
         Assertion::scalar( $cellTag );
         Assertion::inArray( $cellTag, [ 'th', 'td' ] );
-        Assertion::inArray( $wrapTag, [ 'tbody', 'thead', 'tfoot' ] );
 
         $cols = [ ];
 
         foreach( $columns as $column ) {
-            $column->setDataSource( $dataSource );
 
             $cellCss = $cellTag == 'td' ? $this->getTdCss() : $this->getThCss();
 
-            $cols[] = sprintf( '<%s class="%s">%s</%1$s>', $cellTag, $cellCss, $column->render() );
+            $cols[] = sprintf( '<%s class="%s">%s</%1$s>', $cellTag, $cellCss, $column );
         }
 
-        return sprintf( '<%s><tr class="%s">%s</tr></%1$s>', $wrapTag, $this->getRowCss($dataSource), implode( PHP_EOL, $cols ) );
+        return sprintf( '<tr class="%s">%s</tr>', $this->getRowCss($dataSource), implode( PHP_EOL, $cols ) );
     }
 
     /**
@@ -189,22 +185,69 @@ class Table implements Renderable
         $thead = [];
         $tbody = [];
 
-        foreach( $this->dataSource as $dataSource ) {
-            $thead[] = $this->buildSection( $dataSource, 'thead', 'th', $this->columns );
-        }
+        $firstTime = true;
 
         foreach( $this->dataSource as $dataSource ) {
-            $tbody[] = $this->buildSection( $dataSource, 'tbody', 'td', $this->columns );
-        }
+            $this->applyDataSourceToColumns($dataSource);
 
+            if( $firstTime ) {
+                $thead[] = $this->buildSection( $dataSource, 'th', $this->buildHeaders() );
+                $firstTime = false;
+            }
+
+            $tbody[] = $this->buildSection( $dataSource,'td', $this->buildCells() );
+        }
 
         return sprintf(
-            '<table class="%s" id="%s">%s %s</table>',
+            '<table class="%s" id="%s"><thead>%s</thead><tbody>%s</tbody></table>',
             $this->getTableCss(),
             $this->getTableId(),
             implode( PHP_EOL, $thead ) ,
             implode( PHP_EOL, $tbody )
         );
+    }
+
+    protected function buildCells()
+    {
+        $cells = [];
+
+        foreach ($this->columns as $column) {
+            if( ! $column->isVisible() ) {
+                continue;
+            }
+
+            $cells[] = $column->render();
+        }
+
+        return $cells;
+    }
+
+    /**
+     * @return array
+     */
+    protected function buildHeaders()
+    {
+        $headers = [];
+
+        foreach ($this->columns as $column) {
+            if( ! $column->isVisible() ) {
+                continue;
+            }
+
+            $headers[] = $column->getHeader();
+        }
+
+        return $headers;
+    }
+
+    /**
+     * @param $dataSource
+     */
+    protected function applyDataSourceToColumns($dataSource)
+    {
+        foreach($this->columns as $column) {
+            $column->setDataSource($dataSource);
+        }
     }
 
     /**

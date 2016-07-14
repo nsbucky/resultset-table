@@ -19,9 +19,13 @@ class Money implements Formatter
 
     public function format( $value )
     {
-        setlocale(LC_MONETARY, $this->locale);
+        if( function_exists('money_format')) {
+            setlocale(LC_MONETARY, $this->locale);
+
+            return money_format( $this->formatString, $value );    
+        }
         
-        return money_format( $this->formatString, $value );
+        return sprintf('$%1.2f', $value);
     }
 
 }
