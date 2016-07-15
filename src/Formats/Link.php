@@ -11,10 +11,21 @@ namespace ResultSetTable\Formats;
 
 use ResultSetTable\Contracts\Formatter;
 
+/**
+ * Class Link
+ * @package ResultSetTable\Formats
+ */
 class Link implements Formatter
 {
+    /**
+     * @var string
+     */
     public $label;
 
+    /**
+     * @param string $value
+     * @return string
+     */
     public function format( $value )
     {
         $label = $value;

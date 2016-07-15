@@ -11,6 +11,10 @@ namespace ResultSetTable\Rows;
 
 use Assert\Assertion;
 
+/**
+ * Class Row
+ * @package ResultSetTable\Rows
+ */
 abstract class Row
 {
     /**
@@ -34,6 +38,9 @@ abstract class Row
         $this->callback = $callback;
     }
 
+    /**
+     * @param $dataSource
+     */
     protected function setDataSource( $dataSource )
     {
         $func = $this->callback;

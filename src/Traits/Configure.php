@@ -9,8 +9,15 @@
 namespace ResultSetTable\Traits;
 
 
+/**
+ * Class Configure
+ * @package ResultSetTable\Traits
+ */
 trait Configure
 {
+    /**
+     * @param array $configuration
+     */
     public function configure( array $configuration )
     {
         if( ! isset($this->configurableOptions ) ) {

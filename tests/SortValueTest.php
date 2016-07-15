@@ -109,4 +109,5 @@ class MySort
 {
     use \ResultSetTable\Traits\SortValue;
     use \ResultSetTable\Traits\QueryString;
+
 }

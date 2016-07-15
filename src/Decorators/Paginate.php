@@ -11,9 +11,7 @@ namespace ResultSetTable\Decorators;
 
 class Paginate extends Decorator
 {
-    public function decorate()
-    {
-        $tableWrapper = '<div class="panel panel-{panelType}">
+    protected $wrapper = '<div class="panel panel-{panelType}">
     <div class="panel-heading">
         <div class="pull-right form-inline">
             {filter} {downloadTable} {actionButtons} {itemsPerPage}
@@ -27,7 +25,19 @@ class Paginate extends Decorator
     <div>{pagerLinks}</div>
     <div class="clearfix"></div>
     </div>
-    </div>
-    ';
+    </div>';
+
+    public function decorate()
+    {
+         
     }
+
+    /**
+     * @param string $wrapper
+     */
+    public function setWrapper( $wrapper )
+    {
+        $this->wrapper = $wrapper;
+    }
+
 }

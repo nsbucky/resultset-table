@@ -10,6 +10,10 @@ namespace ResultSetTable\Traits;
 
 use Assert\Assertion;
 
+/**
+ * Class Tokenize
+ * @package ResultSetTable\Traits
+ */
 trait Tokenize
 {
     /**

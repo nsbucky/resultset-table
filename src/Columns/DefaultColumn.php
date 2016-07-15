@@ -9,8 +9,17 @@
 namespace ResultSetTable\Columns;
 
 
+/**
+ * Class DefaultColumn
+ * @package ResultSetTable\Columns
+ */
 class DefaultColumn extends Column
 {
+    protected $sortable = false;
+
+    /**
+     * @return mixed|null|string
+     */
     function getValue()
     {
         return $this->fetchRawValueFromDataSource();

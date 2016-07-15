@@ -9,6 +9,10 @@
 namespace ResultSetTable\Contracts;
 
 
+/**
+ * Interface Renderable
+ * @package ResultSetTable\Contracts
+ */
 interface Renderable
 {
     /**

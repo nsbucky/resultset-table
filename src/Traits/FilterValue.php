@@ -10,6 +10,10 @@ namespace ResultSetTable\Traits;
 
 use Illuminate\Support\Collection;
 
+/**
+ * Class FilterValue
+ * @package ResultSetTable\Traits
+ */
 trait FilterValue
 {
     /**
@@ -110,7 +114,10 @@ trait FilterValue
 
         return $optionsHtml;
     }
-    
+
+    /**
+     * @param $filter
+     */
     public function setFilter( $filter )
     {
         $this->filter = $filter;

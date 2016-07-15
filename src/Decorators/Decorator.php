@@ -9,9 +9,13 @@
 namespace ResultSetTable\Decorators;
 
 
-use ResultSetTable\Renderable;
+use ResultSetTable\Contracts\Renderable;
 use ResultSetTable\Table;
 
+/**
+ * Class Decorator
+ * @package ResultSetTable\Decorators
+ */
 abstract class Decorator implements Renderable
 {
     /**
@@ -33,6 +37,9 @@ abstract class Decorator implements Renderable
      */
     abstract public function decorate();
 
+    /**
+     * @return string
+     */
     public function render()
     {
         return $this->decorate();

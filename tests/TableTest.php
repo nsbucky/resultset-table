@@ -27,11 +27,11 @@ class TableTest extends PHPUnit_Framework_TestCase
         $column->setDataSource($this->dataSource[0]);
 
         $columns = [
-            $column->render(),
+            $column,
         ];
 
         $section = $table->buildSection( $this->dataSource[0], 'td', $columns );
-        $expected = '<tr class=""><td class="">bar</td></tr>';
+        $expected = '<tr class=""><td class="rst-column">bar</td></tr>';
         
         $this->assertEquals($expected, $section);
     }
@@ -55,13 +55,13 @@ class TableTest extends PHPUnit_Framework_TestCase
 
         $this->assertEquals(1, $html->getElementsByTagName('th')->length);
 
-        $this->assertEquals(2, $html->getElementsByTagName('td')->length);
+        $this->assertEquals(4, $html->getElementsByTagName('td')->length);
 
         $this->assertEquals('Foo', $html->getElementsByTagName('th')->item(0)->nodeValue);
 
-        $this->assertEquals('bar', $html->getElementsByTagName('td')->item(0)->nodeValue);
+        $this->assertEquals('bar', $html->getElementsByTagName('td')->item(2)->nodeValue);
 
-        $this->assertEquals('nuts', $html->getElementsByTagName('td')->item(1)->nodeValue);
+        $this->assertEquals('nuts', $html->getElementsByTagName('td')->item(3)->nodeValue);
 
     }
 
@@ -163,7 +163,7 @@ class TableTest extends PHPUnit_Framework_TestCase
 
         $tds = $html->getElementsByTagName('td');
 
-        $this->assertEquals('blue', $tds->item(0)->nodeValue);
+        $this->assertEquals('blue', $tds->item(1)->nodeValue);
     }
 
     public function testButtons()
@@ -175,12 +175,21 @@ class TableTest extends PHPUnit_Framework_TestCase
 
         $actual = $table->render();
 
-        file_put_contents('test.html', $actual);
+        #file_put_contents('test.html', $actual);
 
-        $html = new DOMDocument($actual);
+        $html = new DOMDocument();
+        $html->loadHTML($actual);
 
         $th = $html->getElementsByTagName('th');
 
         $this->assertEquals('Actions', $th->item(1)->nodeValue);
+
+        $td = $html->getElementsByTagName('td');
+
+        $a = $td->item(3)->firstChild->nodeValue;
+
+        $this->assertEquals('Balls', $a);
+
+        $this->assertEquals('a', $td->item(3)->firstChild->tagName);
     }
 }

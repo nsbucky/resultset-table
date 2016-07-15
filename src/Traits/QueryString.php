@@ -9,10 +9,20 @@
 namespace ResultSetTable\Traits;
 
 
+/**
+ * Class QueryString
+ * @package ResultSetTable\Traits
+ */
 trait QueryString
 {
+    /**
+     * @var
+     */
     protected $input;
-    
+
+    /**
+     * @return mixed
+     */
     public function getInput()
     {
         if( isset($this->input)) {
@@ -21,7 +31,10 @@ trait QueryString
         
         $this->input = $_GET;
     }
-    
+
+    /**
+     * @param array $input
+     */
     public function setInput( array $input)
     {
         $this->input = $input;

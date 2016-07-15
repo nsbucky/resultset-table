@@ -47,11 +47,7 @@ class ButtonTest extends PHPUnit_Framework_TestCase
 
     public function testLinkButton()
     {
-        $button = new \ResultSetTable\Buttons\Link([
-            'label'=>'{test}',
-            'url'=>'index.php',
-            'confirm'=>'Are you sure?',
-        ]);
+        $button = new \ResultSetTable\Buttons\Link('index.php','{test}',['confirm'=>'Are you sure?']);
 
         $button->setDataSource( [
             'test'=>'balls',

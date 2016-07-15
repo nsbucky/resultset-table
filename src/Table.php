@@ -13,14 +13,22 @@ use ResultSetTable\Buttons\Action;
 use ResultSetTable\Buttons\Button;
 use ResultSetTable\Columns\Column;
 use ResultSetTable\Columns\DefaultColumn;
+use ResultSetTable\Contracts\HasScript;
 use ResultSetTable\Contracts\Renderable;
 use ResultSetTable\Rows\Row;
 use ResultSetTable\Traits\Configure;
 
+/**
+ * Class Table
+ * @package ResultSetTable
+ */
 class Table implements Renderable
 {
     use Configure;
 
+    /**
+     * @var array|\IteratorAggregate
+     */
     private $dataSource;
 
     /**
@@ -53,11 +61,25 @@ class Table implements Renderable
      */
     protected $tableId = 'my-result-table';
 
+    /**
+     * @var
+     */
     protected $tdCss;
 
+    /**
+     * @var
+     */
     protected $thCss;
 
+    /**
+     * @var
+     */
     protected $rowCss;
+
+    /**
+     * @var bool
+     */
+    protected $defaultToSortable = false;
 
     /**
      * Table constructor.
@@ -78,6 +100,11 @@ class Table implements Renderable
     public function addColumn( $config, array $options = [ ] )
     {
         if( $config instanceof Column ) {
+
+            if( $this->defaultToSortable ) {
+                $config->setSortable( true );
+            }
+
             $this->columns[] = $config;
 
             return $this;
@@ -89,13 +116,15 @@ class Table implements Renderable
             $options = array_merge( [
                 'name'      => $name,
                 'formatter' => $format,
+                'sortable'  => $this->defaultToSortable,
             ], $options );
 
             $this->columns[] = new DefaultColumn( $options );
         }
 
         if( is_array( $config ) ) {
-            $this->columns[] = new DefaultColumn( $config );
+            $config['sortable'] = $this->defaultToSortable;
+            $this->columns[]    = new DefaultColumn( $config );
         }
 
         return $this;
@@ -158,30 +187,34 @@ class Table implements Renderable
     /**
      * @param $dataSource
      * @param $cellTag
-     * @param array $columns
+     * @param Column[] $columns
      * @param array $buttons
      * @return string
      */
     public function buildSection( $dataSource, $cellTag, array $columns, array $buttons = [ ] )
     {
         Assertion::scalar( $cellTag );
-        Assertion::inArray( $cellTag, [ 'th', 'td' ] );
+        Assertion::inArray( $cellTag, [ 'th', 'td', 'tf' ] );
 
         $cols = [ ];
 
         foreach( $columns as $column ) {
 
-            $cellCss = $cellTag == 'td' ? $this->getTdCss() : $this->getThCss();
+            $cellCss     = $cellTag == 'td' ? $this->getTdCss() . ' ' . $column->getCss() : $this->getThCss();
+            $columnValue = $cellTag == 'th' ? $column->getHeader() : $column->render();
+            $columnValue = $cellTag == 'tf' ? $column->getFooter() : $columnValue;
 
-            $cols[] = sprintf( '<%s class="%s">%s</%1$s>', $cellTag, $cellCss, $column );
+            $cellTag = $cellTag == 'tf' ? 'td' : $cellTag;
+
+            $cols[] = sprintf( '<%s class="%s">%s</%1$s>', $cellTag, trim( $cellCss ), $columnValue );
         }
 
         if( count( $buttons ) ) {
-            $cols[] = implode( PHP_EOL, $buttons );
+            $cols[] = sprintf( '<td>%s</td>', implode( PHP_EOL, $buttons ) );
         }
 
         if( $cellTag == 'th' && count( $this->buttons ) > 0 ) {
-            $cols[] = 'Actions';
+            $cols[] = '<th>Actions</th>';
         }
 
         $rowCss = $cellTag == 'td' ? $this->getRowCss( $dataSource ) : null;
@@ -196,6 +229,7 @@ class Table implements Renderable
     {
         $thead = [ ];
         $tbody = [ ];
+        $tfoot = [ ];
 
         $firstTime = true;
 
@@ -204,22 +238,46 @@ class Table implements Renderable
             $this->applyDataSourceToButtons( $dataSource );
 
             if( $firstTime ) {
-                $thead[]   = $this->buildSection( $dataSource, 'th', $this->buildHeaders() );
+                $thead[]   = $this->buildSection( $dataSource, 'th', $this->columns );
                 $firstTime = false;
             }
 
-            $tbody[] = $this->buildSection( $dataSource, 'td', $this->buildCells(), $this->buildButtons() );
+            $tbody[] = $this->buildSection( $dataSource, 'td', $this->columns, $this->buildButtons() );
+
+            $tfoot[] = $this->buildSection( $dataSource, 'tf', $this->columns);
         }
 
         return sprintf(
-            '<table class="%s" id="%s"><thead>%s</thead><tbody>%s</tbody></table>',
+            '<table class="%s" id="%s"><thead>%s</thead><tfoot>%s</tfoot><tbody>%s</tbody></table>%s',
             $this->getTableCss(),
             $this->getTableId(),
             implode( PHP_EOL, $thead ),
-            implode( PHP_EOL, $tbody )
+            implode( PHP_EOL, $tfoot),
+            implode( PHP_EOL, $tbody ),
+            implode( PHP_EOL, $this->buildScripts() )
         );
     }
 
+    /**
+     * @return array
+     */
+    protected function buildScripts()
+    {
+        $scripts = [ ];
+
+        foreach( $this->columns as $column ) {
+
+            if( $column instanceof HasScript ) {
+                $scripts[$column->getScriptKey()] = $column->getScript();
+            }
+        }
+
+        return $scripts;
+    }
+
+    /**
+     * @return array
+     */
     protected function buildButtons()
     {
         $buttons = [ ];
@@ -233,42 +291,6 @@ class Table implements Renderable
         }
 
         return $buttons;
-    }
-
-    /**
-     * @return array
-     */
-    protected function buildCells()
-    {
-        $cells = [ ];
-
-        foreach( $this->columns as $column ) {
-            if( !$column->isVisible() ) {
-                continue;
-            }
-
-            $cells[] = $column->render();
-        }
-
-        return $cells;
-    }
-
-    /**
-     * @return array
-     */
-    protected function buildHeaders()
-    {
-        $headers = [ ];
-
-        foreach( $this->columns as $column ) {
-            if( !$column->isVisible() ) {
-                continue;
-            }
-
-            $headers[] = $column->getHeader();
-        }
-
-        return $headers;
     }
 
     /**
@@ -409,4 +431,22 @@ class Table implements Renderable
     {
         return $this->rows;
     }
+
+    /**
+     * @return boolean
+     */
+    public function isDefaultToSortable()
+    {
+        return $this->defaultToSortable;
+    }
+
+    /**
+     * @param boolean $defaultToSortable
+     */
+    public function setDefaultToSortable( $defaultToSortable )
+    {
+        $this->defaultToSortable = $defaultToSortable;
+    }
+
+
 }

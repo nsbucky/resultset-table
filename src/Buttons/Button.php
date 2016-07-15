@@ -9,10 +9,15 @@
 namespace ResultSetTable\Buttons;
 
 
+use Assert\Assertion;
 use ResultSetTable\Contracts\Renderable;
 use ResultSetTable\Traits\Configure;
 use ResultSetTable\Traits\Tokenize;
 
+/**
+ * Class Button
+ * @package ResultSetTable\Buttons
+ */
 abstract class Button implements Renderable
 {
     use Configure;
@@ -33,7 +38,8 @@ abstract class Button implements Renderable
         'label',
         'confirm',
         'css',
-        'url'
+        'url',
+        'method',
     ];
 
     /**
@@ -45,6 +51,11 @@ abstract class Button implements Renderable
      * @var string
      */
     protected $url;
+
+    /**
+     * @var string
+     */
+    protected $method;
 
     /**
      * @var bool
@@ -93,6 +104,8 @@ abstract class Button implements Renderable
         if( $label instanceof \Closure ) {
             $label = $label($this->dataSource);
         }
+
+        Assertion::scalar($label);
 
         if( strpos( $label, '{' ) !== false ) {
 
@@ -151,6 +164,8 @@ abstract class Button implements Renderable
             $url = $url($this->dataSource);
         }
 
+        Assertion::scalar($url);
+
         if( strpos( $url, '{' ) !== false ) {
 
             $this->createTokens( $this->dataSource );
@@ -160,4 +175,21 @@ abstract class Button implements Renderable
 
         return $url;
     }
+
+    /**
+     * @return string
+     */
+    public function getMethod()
+    {
+        return $this->method;
+    }
+
+    /**
+     * @param string $method
+     */
+    public function setMethod( $method )
+    {
+        $this->method = $method;
+    }
+
 }

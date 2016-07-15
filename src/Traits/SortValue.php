@@ -11,6 +11,10 @@ namespace ResultSetTable\Traits;
 
 use Assert\Assertion;
 
+/**
+ * Class SortValue
+ * @package ResultSetTable\Traits
+ */
 trait SortValue
 {
     
@@ -57,11 +61,20 @@ trait SortValue
     protected $itemsPerPageIdentifier = 'limit';
 
     /**
+     * @var bool
+     */
+    protected $sortable = true;
+
+    /**
      * @param $label
      * @return string
      */
     public function createSortableLink( $label )
     {
+        if( ! $this->isSortable() ) {
+            return $label;
+        }
+
         $direction        = $this->getNextSortDirection();
         $currentDirection = $this->getCurrentSortDirection();
 
@@ -296,4 +309,19 @@ trait SortValue
         $this->sortableName = $sortableName;
     }
 
+    /**
+     * @return boolean
+     */
+    public function isSortable()
+    {
+        return $this->sortable;
+    }
+
+    /**
+     * @param boolean $sortable
+     */
+    public function setSortable( $sortable )
+    {
+        $this->sortable = (bool) $sortable;
+    }
 }

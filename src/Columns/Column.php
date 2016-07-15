@@ -18,6 +18,10 @@ use ResultSetTable\Traits\QueryString;
 use ResultSetTable\Traits\SortValue;
 use ResultSetTable\Traits\Tokenize;
 
+/**
+ * Class Column
+ * @package ResultSetTable\Columns
+ */
 abstract class Column implements Renderable
 {
     use SortValue;
@@ -26,6 +30,9 @@ abstract class Column implements Renderable
     use QueryString;
     use Tokenize;
 
+    /**
+     * @var
+     */
     protected $dataSource;
 
     /**
@@ -41,13 +48,12 @@ abstract class Column implements Renderable
         'raw',
         'name',
         'value',
-        'formatter'
+        'formatter',
+        'css',
+        'sortable',
+        'footer',
     ];
 
-    /**
-     * @var bool
-     */
-    protected $sortable = false;
 
     /**
      * @var bool
@@ -83,6 +89,16 @@ abstract class Column implements Renderable
      * @var string
      */
     protected $header;
+
+    /**
+     * @var string
+     */
+    protected $footer;
+
+    /**
+     * @var
+     */
+    protected $css = 'rst-column';
 
     /**
      * Column constructor.
@@ -169,6 +185,10 @@ abstract class Column implements Renderable
         return $this->raw ? $value : e( $value );
     }
 
+    /**
+     * @param $string
+     * @return string
+     */
     protected function formatString( $string )
     {
         if( $this->formatter instanceof \Closure ) {
@@ -219,5 +239,44 @@ abstract class Column implements Renderable
     {
         return $this->formatter;
     }
-    
+
+    /**
+     * @return boolean
+     */
+    public function isRaw()
+    {
+        return $this->raw;
+    }
+
+    /**
+     * @param boolean $raw
+     */
+    public function setRaw( $raw )
+    {
+        $this->raw = $raw;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getCss()
+    {
+        return $this->css;
+    }
+
+    /**
+     * @param mixed $css
+     */
+    public function setCss( $css )
+    {
+        $this->css = $css;
+    }
+
+    /**
+     * @return string
+     */
+    public function getFooter()
+    {
+        return $this->footer;
+    }
 }

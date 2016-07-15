@@ -11,12 +11,26 @@ namespace ResultSetTable\Formats;
 
 use ResultSetTable\Contracts\Formatter;
 
+/**
+ * Class Money
+ * @package ResultSetTable\Formats
+ */
 class Money implements Formatter
 {
+    /**
+     * @var string
+     */
     public $formatString = '%.2n';
 
+    /**
+     * @var string
+     */
     public $locale = 'en_US.UTF-8';
 
+    /**
+     * @param string $value
+     * @return string
+     */
     public function format( $value )
     {
         if( function_exists('money_format')) {

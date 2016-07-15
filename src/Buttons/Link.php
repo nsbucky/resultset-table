@@ -9,6 +9,10 @@
 namespace ResultSetTable\Buttons;
 
 
+/**
+ * Class Link
+ * @package ResultSetTable\Buttons
+ */
 class Link extends Button
 {
 
@@ -23,6 +27,9 @@ class Link extends Button
         parent::__construct( $configurableOptions );
     }
 
+    /**
+     * @return string
+     */
     public function getValue()
     {
         return sprintf( '<a href="%s" class="%s" %s>%s</a>',

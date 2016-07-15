@@ -9,6 +9,10 @@
 namespace ResultSetTable\Contracts;
 
 
+/**
+ * Interface Formatter
+ * @package ResultSetTable\Contracts
+ */
 interface Formatter
 {
     /**
