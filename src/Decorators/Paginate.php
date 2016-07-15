@@ -29,7 +29,7 @@ class Paginate extends Decorator
 
     public function decorate()
     {
-         
+
     }
 
     /**

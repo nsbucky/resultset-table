@@ -29,17 +29,17 @@ class Table implements Renderable
     /**
      * @var array|\IteratorAggregate
      */
-    private $dataSource;
+    protected $dataSource;
 
     /**
      * @var Column[]
      */
-    private $columns = [ ];
+    protected $columns = [ ];
 
     /**
      * @var Button[]
      */
-    private $buttons = [ ];
+    protected $buttons = [ ];
 
     /**
      * @var Row[]
@@ -244,8 +244,9 @@ class Table implements Renderable
 
             $tbody[] = $this->buildSection( $dataSource, 'td', $this->columns, $this->buildButtons() );
 
-            $tfoot[] = $this->buildSection( $dataSource, 'tf', $this->columns);
         }
+
+        $tfoot[] = $this->buildSection( null, 'tf', $this->columns);
 
         return sprintf(
             '<table class="%s" id="%s"><thead>%s</thead><tfoot>%s</tfoot><tbody>%s</tbody></table>%s',
