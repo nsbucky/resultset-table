@@ -8,7 +8,8 @@
 
 namespace ResultSetTable\Decorators;
 
-
+use Assert\Assertion;
+use Illuminate\Contracts\Pagination\Presenter;
 use Illuminate\Pagination\LengthAwarePaginator as Paginator;
 use ResultSetTable\Table;
 
@@ -38,6 +39,9 @@ class Paginate extends Decorator
     </div>
     </div>';
 
+    /**
+     * @var string
+     */
     protected $tableHeaderText;
 
     /**
@@ -46,9 +50,19 @@ class Paginate extends Decorator
     protected $paginator;
 
     /**
+     * @var Presenter
+     */
+    protected $presentor;
+
+    /**
+     * @var boolean
+     */
+    protected $downloadTable = false;
+
+    /**
      * @var string
      */
-    protected $downloadTable;
+    protected $downloadKey = '_download';
 
     /**
      * @var string
@@ -56,13 +70,20 @@ class Paginate extends Decorator
     protected $actionButtons;
 
     /**
+     * @var string
+     */
+    protected $itemsPerPageIdentifier = 'limit';
+
+    /**
      * Paginate constructor.
+     * @param Paginator $paginator
      * @param string $baseUrl
      */
     public function __construct( Table $table, Paginator $paginator, $baseUrl = '' )
     {
         $this->paginator = $paginator;
-        $this->baseUrl   = $baseUrl;
+
+        $this->setBaseUrl( $baseUrl );
 
         parent::__construct( $table );
     }
@@ -70,14 +91,16 @@ class Paginate extends Decorator
     /**
      * @return string
      */
-    public function decorate()
+    protected function decorate()
     {
         $replace = [
             'itemsPerPage'    => $this->paginator->perPage(),
             'tableHeaderText' => $this->getTableHeaderText(),
             'numberOfItems'   => $this->paginator->total(),
-            'pagerLinks'      => $this->paginator->links(),
+            'pagerLinks'      => $this->paginator->links( $this->getPresentor() ),
             'table'           => $this->table->render(),
+            'downloadTable'   => $this->buildDownloadLink(),
+            'actionButtons'   => $this->actionButtons,
         ];
 
         return str_replace( array_keys( $replace ), array_values( $replace ), $this->getWrapper() );
@@ -88,6 +111,7 @@ class Paginate extends Decorator
      */
     public function setWrapper( $wrapper )
     {
+        Assertion::scalar( $wrapper );
         $this->wrapper = $wrapper;
     }
 
@@ -95,11 +119,21 @@ class Paginate extends Decorator
      * build div and form for searching
      * @return string
      */
-    public function getFilters()
+    public function renderFilters()
     {
         $html = '<div class="rst-filter-table"><form action="' . $this->getBaseUrl() . '" class="form form-horizontal">';
 
         foreach ($this->table->getColumns() as $column) {
+            if( ! $column->isVisible() ) {
+                continue;
+            }
+            
+            $filter = $column->getFilter();
+            
+            if( empty($filter)) {
+                continue;
+            }
+            
             $html .= sprintf(
                 '<div class="form-group"><label class="form-control col-sm-2">%s</label><div class="col-sm-10">%s</div></div>',
                 $column->getHeader(),
@@ -130,7 +164,7 @@ class Paginate extends Decorator
     }
 
     /**
-     * @return mixed
+     * @return string
      */
     public function getTableHeaderText()
     {
@@ -138,27 +172,53 @@ class Paginate extends Decorator
     }
 
     /**
-     * @param mixed $tableHeaderText
+     * @param string $tableHeaderText
      */
     public function setTableHeaderText( $tableHeaderText )
     {
+        Assertion::scalar( $tableHeaderText );
         $this->tableHeaderText = $tableHeaderText;
     }
 
     /**
-     * @return mixed
+     * @return boolean
      */
-    public function getDownloadTable()
+    public function isDownloadable()
     {
         return $this->downloadTable;
     }
 
     /**
-     * @param mixed $downloadTable
+     * @param boolean $downloadTable
      */
-    public function setDownloadTable( $downloadTable )
+    public function setDownloadable( $downloadTable )
     {
-        $this->downloadTable = $downloadTable;
+        $this->downloadTable = (bool)$downloadTable;
+    }
+
+    /**
+     * @return string|void
+     */
+    public function buildDownloadLink()
+    {
+        if (!$this->isDownloadable()) {
+            return;
+        }
+
+        return sprintf( '<a href="%s">Download Results</a>', $this->currentPageUrl( [ $this->downloadKey => 1 ] ) );
+    }
+
+    /**
+     * @param array $params
+     * @param array $except
+     * @return string
+     */
+    public function currentPageUrl( array $params = [ ], array $except = [ ] )
+    {
+        $get   = array_except( $_GET, $except );
+        $query = array_merge( $get, $params );
+
+        return $this->getBaseUrl() . '?' . http_build_query($query);
     }
 
     /**
@@ -183,6 +243,87 @@ class Paginate extends Decorator
     public function getWrapper()
     {
         return $this->wrapper;
+    }
+
+    /**
+     * @return Presenter
+     */
+    public function getPresentor()
+    {
+        return $this->presentor;
+    }
+
+    /**
+     * @param Presenter $presentor
+     */
+    public function setPresentor( Presenter $presentor )
+    {
+        $this->presentor = $presentor;
+    }
+
+    /**
+     * @param string $downloadKey
+     */
+    public function setDownloadKey( $downloadKey )
+    {
+        $this->downloadKey = $downloadKey;
+    }
+
+    /**
+     * create the string of html for the drop down list using the $itemsPerPage
+     * variable. It also creates some boilerplate javascript that depends on jQuery
+     * to build a url to send to server.
+     * @return string
+     */
+    public function renderItemsPerPage()
+    {
+        $url = $this->currentPageUrl( [ ], [ 'limit' ] );
+
+        $itemsPerPage = range( 20, 100, 20 );
+
+        ob_start();
+        ?>
+
+        <script>
+            jQuery(function () {
+                $("#grid-view-<?php echo $this->getItemsPerPageIdentifier()?>").change(function () {
+                    window.location = "<?php echo $url . '&' . $this->getItemsPerPageIdentifier()?>=" + $(this).val();
+                });
+            });
+        </script>
+
+        <select name="<?php echo $this->getItemsPerPageIdentifier() ?>"
+                id="rst-limit-<?php echo $this->getItemsPerPageIdentifier() ?>"
+                class="form-control">
+            <?php
+            $limitSelected = array_get( $_GET, $this->getItemsPerPageIdentifier(), 20 );
+            foreach ((array)$itemsPerPage as $limit) {
+                $selected = null;
+                if (strcmp( $limitSelected, $limit ) == 0) {
+                    $selected = 'selected="selected"';
+                }
+                printf( '<option value="%d" %s>%d</option>' . PHP_EOL, $limit, $selected, $limit );
+            }
+            ?>
+        </select>
+        <?php
+        return ob_get_clean();
+    }
+
+    /**
+     * @return string
+     */
+    public function getItemsPerPageIdentifier()
+    {
+        return $this->itemsPerPageIdentifier;
+    }
+
+    /**
+     * @param string $itemsPerPageIdentifier
+     */
+    public function setItemsPerPageIdentifier( $itemsPerPageIdentifier )
+    {
+        $this->itemsPerPageIdentifier = $itemsPerPageIdentifier;
     }
 
 }

@@ -50,12 +50,13 @@ trait FilterValue
             $this->filter = $this->filter->all();
         }
 
-        return sprintf(
-            '<select name="%s" class="form-control rst-filter-select">%s</select>',
-            $this->name,
-            $this->buildDropDownList( (array) $this->filter, $value )
-        );
-        
+        if( is_array( $this->filter ) ) {
+            return sprintf(
+                '<select name="%s" class="form-control rst-filter-select">%s</select>',
+                $this->name,
+                $this->buildDropDownList( (array) $this->filter, $value )
+            );
+        }
     }
 
     /**

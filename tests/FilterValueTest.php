@@ -53,6 +53,18 @@ class FilterValueTest extends PHPUnit_Framework_TestCase
         
         $this->assertEquals($expected, $actual);
     }
+
+    public function testNoFilter()
+    {
+        $this->filter->setFilter(false);
+        $this->filter->setInput([
+            'test'=>'bar'
+        ]);
+
+        $actual = $this->filter->getFilter();
+
+        $this->assertFalse( $actual);
+    }
 }
 
 class MyFilter

@@ -1,0 +1,75 @@
+<?php
+
+/**
+ * Created by PhpStorm.
+ * User: Kenrick
+ * Date: 7/18/2016
+ * Time: 6:37 AM
+ */
+class PaginateTest extends PHPUnit_Framework_TestCase
+{
+    private $table;
+    private $paginator;
+
+    public function setUp()
+    {
+        $data = [
+            [
+                'foo'=>'bar',
+            ]
+        ];
+
+        $this->paginator = new \Illuminate\Pagination\LengthAwarePaginator([], 1, 20);
+
+        $this->table = new \ResultSetTable\Table($this->paginator);
+        $this->table->addColumn('foo');
+    }
+
+    public function testBaseUrl()
+    {
+        $url = 'http://yahoo.com';
+
+        $decorator = new \ResultSetTable\Decorators\Paginate( $this->table, $this->paginator  );
+
+        $decorator->setBaseUrl($url);
+
+        $this->assertEquals($url, $decorator->getBaseUrl());
+
+        $_GET = ['foo'=>'buns'];
+
+        $this->assertEquals($url.'?foo=buns', $decorator->currentPageUrl());
+
+        $this->assertEquals($url.'?foo=bar', $decorator->currentPageUrl(['foo'=>'bar']));
+
+        $this->assertEquals($url.'?test=bar', $decorator->currentPageUrl(['test'=>'bar'],['foo']));
+
+        $_GET = [];
+    }
+    
+    public function testItemsPerPage()
+    {
+        $decorator = new \ResultSetTable\Decorators\Paginate( $this->table, $this->paginator  );
+        $actual = $decorator->renderItemsPerPage();
+
+        #file_put_contents('test.html', $actual);
+    }
+
+    public function testBuildDownloadLink()
+    {
+        $decorator = new \ResultSetTable\Decorators\Paginate( $this->table, $this->paginator  );
+        $decorator->setDownloadable(true);
+        $decorator->setDownloadKey('_d');
+
+        $a = '<a href="?_d=1">Download Results</a>';
+
+        $this->assertEquals($a, $decorator->buildDownloadLink());
+    }
+
+    public function testGetFilters()
+    {
+        $decorator = new \ResultSetTable\Decorators\Paginate( $this->table, $this->paginator );
+        $actual = $decorator->renderFilters();
+
+        file_put_contents('test.html', $actual);
+    }
+}

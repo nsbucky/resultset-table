@@ -9,6 +9,7 @@
 namespace ResultSetTable;
 
 use Assert\Assertion;
+use Illuminate\Pagination\LengthAwarePaginator;
 use ResultSetTable\Buttons\Action;
 use ResultSetTable\Buttons\Button;
 use ResultSetTable\Columns\Column;
@@ -83,10 +84,15 @@ class Table implements Renderable
 
     /**
      * Table constructor.
-     * @param \IteratorAggregate|array $dataSource
+     * @param \IteratorAggregate|LengthAwarePaginator|array $dataSource
+     * @param array $options
      */
     public function __construct( $dataSource, array $options = [ ] )
     {
+        if( $dataSource instanceof LengthAwarePaginator) {
+            $dataSource = $dataSource->items();
+        }
+        
         $this->dataSource = $dataSource;
 
         $this->configure( $options );

@@ -35,7 +35,7 @@ abstract class Decorator implements Renderable
     /**
      * @return string
      */
-    abstract public function decorate();
+    abstract protected function decorate();
 
     /**
      * @return string
