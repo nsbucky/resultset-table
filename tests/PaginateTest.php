@@ -19,7 +19,7 @@ class PaginateTest extends PHPUnit_Framework_TestCase
             ]
         ];
 
-        $this->paginator = new \Illuminate\Pagination\LengthAwarePaginator([], 1, 20);
+        $this->paginator = new \Illuminate\Pagination\LengthAwarePaginator($data, 1, 20);
 
         $this->table = new \ResultSetTable\Table($this->paginator);
         $this->table->addColumn('foo');
@@ -52,6 +52,11 @@ class PaginateTest extends PHPUnit_Framework_TestCase
         $actual = $decorator->renderItemsPerPage();
 
         #file_put_contents('test.html', $actual);
+
+        $html = new DOMDocument();
+        $html->loadHTML($actual);
+
+
     }
 
     public function testBuildDownloadLink()
@@ -70,6 +75,6 @@ class PaginateTest extends PHPUnit_Framework_TestCase
         $decorator = new \ResultSetTable\Decorators\Paginate( $this->table, $this->paginator );
         $actual = $decorator->renderFilters();
 
-        file_put_contents('test.html', $actual);
+        #file_put_contents('test.html', $actual);
     }
 }

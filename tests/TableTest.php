@@ -55,13 +55,13 @@ class TableTest extends PHPUnit_Framework_TestCase
 
         $this->assertEquals(1, $html->getElementsByTagName('th')->length);
 
-        $this->assertEquals(4, $html->getElementsByTagName('td')->length);
+        $this->assertEquals(3, $html->getElementsByTagName('td')->length);
 
         $this->assertEquals('Foo', $html->getElementsByTagName('th')->item(0)->nodeValue);
 
-        $this->assertEquals('bar', $html->getElementsByTagName('td')->item(2)->nodeValue);
+        $this->assertEquals('bar', $html->getElementsByTagName('td')->item(1)->nodeValue);
 
-        $this->assertEquals('nuts', $html->getElementsByTagName('td')->item(3)->nodeValue);
+        $this->assertEquals('nuts', $html->getElementsByTagName('td')->item(2)->nodeValue);
 
     }
 
@@ -175,7 +175,7 @@ class TableTest extends PHPUnit_Framework_TestCase
 
         $actual = $table->render();
 
-        #file_put_contents('test.html', $actual);
+        file_put_contents('test.html', $actual);
 
         $html = new DOMDocument();
         $html->loadHTML($actual);
@@ -186,10 +186,12 @@ class TableTest extends PHPUnit_Framework_TestCase
 
         $td = $html->getElementsByTagName('td');
 
-        $a = $td->item(3)->firstChild->nodeValue;
+        $a = $td->item(2)->firstChild->nodeValue;
+
+        var_dump($a);
 
         $this->assertEquals('Balls', $a);
 
-        $this->assertEquals('a', $td->item(3)->firstChild->tagName);
+        $this->assertEquals('a', $td->item(2)->firstChild->tagName);
     }
 }

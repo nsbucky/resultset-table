@@ -56,14 +56,14 @@ class FilterValueTest extends PHPUnit_Framework_TestCase
 
     public function testNoFilter()
     {
-        $this->filter->setFilter(false);
+
         $this->filter->setInput([
             'test'=>'bar'
         ]);
 
         $actual = $this->filter->getFilter();
 
-        $this->assertFalse( $actual);
+        $this->assertEmpty( $actual );
     }
 }
 
@@ -73,4 +73,5 @@ class MyFilter
     use \ResultSetTable\Traits\QueryString;
 
     protected $name = 'test';
+    protected $filter;
 }
