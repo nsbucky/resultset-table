@@ -114,11 +114,11 @@ class TableTest extends PHPUnit_Framework_TestCase
 
         $this->assertTrue( $tr->item(1)->hasAttributes());
 
-        $trClass = $tr->item(1);
+        $trClass = $tr->item(2);
 
         $this->assertEquals('balls', $trClass->attributes->getNamedItem('class')->nodeValue);
 
-        $trClass2 = $tr->item(2);
+        $trClass2 = $tr->item(3);
 
         $this->assertEquals('found', $trClass2->attributes->getNamedItem('class')->nodeValue);
     }
@@ -170,12 +170,12 @@ class TableTest extends PHPUnit_Framework_TestCase
     {
         $table = new \ResultSetTable\Table($this->dataSource);
 
-        $table->addColumn('foo')
-        ->addButton(new \ResultSetTable\Buttons\Link('index.html','Balls'));
+        $table->addColumn('foo');
+        $table->addButton(new \ResultSetTable\Buttons\Link('index.html','Balls'));
 
         $actual = $table->render();
 
-        file_put_contents('test.html', $actual);
+        #file_put_contents('test.html', $actual);
 
         $html = new DOMDocument();
         $html->loadHTML($actual);
@@ -188,7 +188,7 @@ class TableTest extends PHPUnit_Framework_TestCase
 
         $a = $td->item(2)->firstChild->nodeValue;
 
-        var_dump($a);
+        //var_dump($a);
 
         $this->assertEquals('Balls', $a);
 

@@ -70,11 +70,60 @@ class PaginateTest extends PHPUnit_Framework_TestCase
         $this->assertEquals($a, $decorator->buildDownloadLink());
     }
 
-    public function testGetFilters()
+    public function testGetFiltersEmpty()
     {
         $decorator = new \ResultSetTable\Decorators\Paginate( $this->table, $this->paginator );
         $actual = $decorator->renderFilters();
 
+        file_put_contents('test.html', $actual);
+
+        $html = new DOMDocument();
+        $html->loadHTML($actual);
+
+        $forms = $html->getElementsByTagName('form');
+
+        $form = $forms->item(0);
+
+        $this->assertTrue($form->hasChildNodes() );
+        $this->assertEquals(1, $form->childNodes->length);
+        $this->assertEquals('button', $form->childNodes->item(0)->nodeName);
+    }
+    
+    public function testGetFilterInput()
+    {
+        $table = new \ResultSetTable\Table($this->paginator);
+        $table->addColumn('foo')->setFilter(true);
+        
+        $decorator = new \ResultSetTable\Decorators\Paginate( $table, $this->paginator );
+        $actual = $decorator->renderFilters();
+
         #file_put_contents('test.html', $actual);
+
+        $html = new DOMDocument();
+        $html->loadHTML($actual);
+
+        $forms = $html->getElementsByTagName('form');
+
+        $form = $forms->item(0);
+
+        $this->assertTrue($form->hasChildNodes() );
+        $this->assertEquals(2, $form->childNodes->length);
+        $this->assertEquals('button', $form->childNodes->item(1)->nodeName);
+
+        // input
+        $input = $html->getElementsByTagName('input')->item(0);
+        $this->assertEquals('foo', $input->attributes->getNamedItem('name')->nodeValue);
+        $this->assertEmpty($input->attributes->getNamedItem('value')->nodeValue);
+    }
+
+    public function testRender()
+    {
+        $decorator = new \ResultSetTable\Decorators\Paginate( $this->table, $this->paginator );
+        $actual = $decorator->render();
+
+        file_put_contents('test.html', $actual);
+
+        $html = new DOMDocument();
+        $html->loadHTML($actual);
     }
 }

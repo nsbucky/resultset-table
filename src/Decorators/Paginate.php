@@ -12,9 +12,11 @@ use Assert\Assertion;
 use Illuminate\Contracts\Pagination\Presenter;
 use Illuminate\Pagination\LengthAwarePaginator as Paginator;
 use ResultSetTable\Table;
+use ResultSetTable\Traits\Tokenize;
 
 class Paginate extends Decorator
 {
+    use Tokenize;
     /**
      * @var string
      */
@@ -33,7 +35,7 @@ class Paginate extends Decorator
     </div>
     <div class="grid-view-table-wrapper">{table}</div>
     <div class="panel-footer">
-    <div class="pull-right">{numberOfItems}</div>
+    <div class="pull-right">{numberOfItems} total items</div>
     <div>{pagerLinks}</div>
     <div class="clearfix"></div>
     </div>
@@ -94,7 +96,7 @@ class Paginate extends Decorator
     protected function decorate()
     {
         $replace = [
-            'itemsPerPage'    => $this->paginator->perPage(),
+            'itemsPerPage'    => $this->renderItemsPerPage(),
             'tableHeaderText' => $this->getTableHeaderText(),
             'numberOfItems'   => $this->paginator->total(),
             'pagerLinks'      => $this->paginator->links( $this->getPresentor() ),
@@ -103,7 +105,9 @@ class Paginate extends Decorator
             'actionButtons'   => $this->actionButtons,
         ];
 
-        return str_replace( array_keys( $replace ), array_values( $replace ), $this->getWrapper() );
+        $this->createTokens($replace);
+
+        return $this->replace( $this->getWrapper() );
     }
 
     /**
@@ -284,17 +288,8 @@ class Paginate extends Decorator
         ob_start();
         ?>
 
-        <script>
-            jQuery(function () {
-                $("#grid-view-<?php echo $this->getItemsPerPageIdentifier()?>").change(function () {
-                    window.location = "<?php echo $url . '&' . $this->getItemsPerPageIdentifier()?>=" + $(this).val();
-                });
-            });
-        </script>
-
         <select name="<?php echo $this->getItemsPerPageIdentifier() ?>"
-                id="rst-limit-<?php echo $this->getItemsPerPageIdentifier() ?>"
-                class="form-control">
+                class="form-control rst-limit">
             <?php
             $limitSelected = array_get( $_GET, $this->getItemsPerPageIdentifier(), 20 );
             foreach ((array)$itemsPerPage as $limit) {
@@ -306,6 +301,14 @@ class Paginate extends Decorator
             }
             ?>
         </select>
+
+        <script>
+            jQuery(function () {
+                $(".rst-limit").change(function () {
+                    window.location = "<?php echo $url . '&' . $this->getItemsPerPageIdentifier()?>=" + $(this).val();
+                });
+            });
+        </script>
         <?php
         return ob_get_clean();
     }

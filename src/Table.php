@@ -101,7 +101,7 @@ class Table implements Renderable
     /**
      * @param $config
      * @param array $options
-     * @return $this
+     * @return Column
      */
     public function addColumn( $config, array $options = [ ] )
     {
@@ -113,7 +113,7 @@ class Table implements Renderable
 
             $this->columns[] = $config;
 
-            return $this;
+            return $config;
         }
 
         if( is_scalar( $config ) ) {
@@ -125,48 +125,51 @@ class Table implements Renderable
                 'sortable'  => $this->defaultToSortable,
             ], $options );
 
-            $this->columns[] = new DefaultColumn( $options );
+            $column = new DefaultColumn( $options );
+            $this->columns[] = $column;
         }
 
         if( is_array( $config ) ) {
             $config['sortable'] = $this->defaultToSortable;
-            $this->columns[]    = new DefaultColumn( $config );
+            $column = new DefaultColumn( $config );
+            $this->columns[] = $column;
         }
 
-        return $this;
+        return $column;
     }
 
     /**
      * @param $config
      * @param array $options
-     * @return $this
+     * @return Button
      */
     public function addButton( $config, array $options = [ ] )
     {
         if( $config instanceof Button ) {
             $this->buttons[] = $config;
 
-            return $this;
+            return $config;
         }
 
         if( is_array( $config ) ) {
-            $this->buttons[] = new Action( $config );
+            $button = new Action( $config );
+            $this->buttons[] = $button;
         }
 
-        return $this;
+        return $button;
     }
 
     /**
      * @param $config
      * @param array $options
-     * @return $this
+     * @return Row
      */
     public function addRow( $config, array $options = [ ] )
     {
         if( $config instanceof Row ) {
             $this->rows[] = $config;
 
-            return $this;
+            return $config;
         }
 
         return $this;
@@ -404,7 +407,10 @@ class Table implements Renderable
             return $f( $dataSource );
         }
 
-        return $this->rowCss;
+        if( is_scalar($this->rowCss )) {
+            return $this->rowCss;
+        }
+
     }
 
     /**
