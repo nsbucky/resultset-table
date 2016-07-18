@@ -9,14 +9,23 @@
 namespace ResultSetTable\Decorators;
 
 
+use Illuminate\Pagination\LengthAwarePaginator as Paginator;
+use ResultSetTable\Table;
+
 class Paginate extends Decorator
 {
-    protected $baseUrl ='';
+    /**
+     * @var string
+     */
+    protected $baseUrl;
 
+    /**
+     * @var string
+     */
     protected $wrapper = '<div class="panel panel-{panelType}">
     <div class="panel-heading">
         <div class="pull-right form-inline">
-            {filter} {downloadTable} {actionButtons} {itemsPerPage}
+            {downloadTable} {actionButtons} {itemsPerPage}
         </div>
         <div class="panel-title"><i class="fa fa-table"></i> {tableHeaderText}</div>
         <div class="clearfix"></div>
@@ -29,9 +38,49 @@ class Paginate extends Decorator
     </div>
     </div>';
 
+    protected $tableHeaderText;
+
+    /**
+     * @var Paginator
+     */
+    protected $paginator;
+
+    /**
+     * @var string
+     */
+    protected $downloadTable;
+
+    /**
+     * @var string
+     */
+    protected $actionButtons;
+
+    /**
+     * Paginate constructor.
+     * @param string $baseUrl
+     */
+    public function __construct( Table $table, Paginator $paginator, $baseUrl = '' )
+    {
+        $this->paginator = $paginator;
+        $this->baseUrl   = $baseUrl;
+
+        parent::__construct( $table );
+    }
+
+    /**
+     * @return string
+     */
     public function decorate()
     {
+        $replace = [
+            'itemsPerPage'    => $this->paginator->perPage(),
+            'tableHeaderText' => $this->getTableHeaderText(),
+            'numberOfItems'   => $this->paginator->total(),
+            'pagerLinks'      => $this->paginator->links(),
+            'table'           => $this->table->render(),
+        ];
 
+        return str_replace( array_keys( $replace ), array_values( $replace ), $this->getWrapper() );
     }
 
     /**
@@ -48,9 +97,9 @@ class Paginate extends Decorator
      */
     public function getFilters()
     {
-        $html = '<div class="rst-filter-table"><form action="'.$this->getBaseUrl().'" class="form form-horizontal">';
+        $html = '<div class="rst-filter-table"><form action="' . $this->getBaseUrl() . '" class="form form-horizontal">';
 
-        foreach( $this->table->getColumns() as $column ) {
+        foreach ($this->table->getColumns() as $column) {
             $html .= sprintf(
                 '<div class="form-group"><label class="form-control col-sm-2">%s</label><div class="col-sm-10">%s</div></div>',
                 $column->getHeader(),
@@ -76,8 +125,64 @@ class Paginate extends Decorator
      */
     public function setBaseUrl( $baseUrl )
     {
-        $this->baseUrl = filter_var($baseUrl, FILTER_SANITIZE_URL);
+        $this->baseUrl = filter_var( $baseUrl, FILTER_SANITIZE_URL );
+        $this->paginator->setPath( $this->baseUrl );
     }
 
+    /**
+     * @return mixed
+     */
+    public function getTableHeaderText()
+    {
+        return $this->tableHeaderText;
+    }
+
+    /**
+     * @param mixed $tableHeaderText
+     */
+    public function setTableHeaderText( $tableHeaderText )
+    {
+        $this->tableHeaderText = $tableHeaderText;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getDownloadTable()
+    {
+        return $this->downloadTable;
+    }
+
+    /**
+     * @param mixed $downloadTable
+     */
+    public function setDownloadTable( $downloadTable )
+    {
+        $this->downloadTable = $downloadTable;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getActionButtons()
+    {
+        return $this->actionButtons;
+    }
+
+    /**
+     * @param mixed $actionButtons
+     */
+    public function setActionButtons( $actionButtons )
+    {
+        $this->actionButtons = $actionButtons;
+    }
+
+    /**
+     * @return string
+     */
+    public function getWrapper()
+    {
+        return $this->wrapper;
+    }
 
 }

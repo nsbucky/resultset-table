@@ -3,7 +3,8 @@
     "description": "Create HTML Bootstrap tables from Arrays and Laravel Collections",
     "require": {
       "beberlei/assert": "^2.3@dev",
-      "illuminate/support": "^5.2"
+      "illuminate/support": "^5.2",
+        "illuminate/pagination": "^5.2"
     },
     "require-dev": {
         "phpunit/phpunit": "^5.4"
