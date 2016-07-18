@@ -22,7 +22,7 @@ class Paginate extends Decorator
     /**
      * @var string
      */
-    protected $wrapper = '<div class="panel panel-{panelType}">
+    protected $wrapper = '<div class="panel panel-default">
     <div class="panel-heading">
         <div class="pull-right form-inline">
             {downloadTable} {actionButtons} {itemsPerPage}
