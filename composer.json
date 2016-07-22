@@ -13,10 +13,7 @@
     "autoload": {
         "psr-4":{
             "ResultSetTable\\" : "src/"
-        },
-      "files": [
-        "vendor/illuminate/support/helpers.php"
-      ]
+        }
     },
     "license": "MIT",
     "authors": [
