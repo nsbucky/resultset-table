@@ -4,8 +4,7 @@
     "require": {
       "beberlei/assert": "^2.3@dev",
       "illuminate/support": "^5.2",
-        "illuminate/pagination": "^5.2",
-      "yajra/laravel-datatables-oracle": "~6.0"
+        "illuminate/pagination": "^5.2"
     },
     "require-dev": {
         "phpunit/phpunit": "^5.4"
